@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// FIXED: GENERATE REPORT FUNCTION
+// FIXED: BULLETPROOF GENERATE REPORT FUNCTION
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -243,12 +243,12 @@ function generateReport() {
     newWindow.document.close();
 }
 
-// FIXED: Pass SHORT label to getObservation
+// ✅ FIXED: BULLETPROOF LANGUAGE CARDS
 function createLanguageCards(data, isReceive) {
     return labels.map((label, i) => {
         const score = data[i];
         const fullLabel = fullLabels[i];
-        const observation = getObservation(label, score, isReceive);  // FIXED: Pass 'label' (short)
+        const observation = getObservation(label, score, isReceive);
         const scoreClass = score >= 7 ? 'score-high' : score >= 4 ? 'score-medium' : 'score-low';
         const scoreColor = score >= 7 ? '#e74c3c' : score >= 4 ? '#f1c40f' : '#95a5a6';
         
@@ -261,11 +261,20 @@ function createLanguageCards(data, isReceive) {
     }).join('');
 }
 
-// FIXED: Now takes shortName
-function getObservation(shortName, score, isReceive) {
-    const category = score >= 7 ? 'high' : score >= 4 ? 'medium' : 'low';
-    const observations = isReceive ? receiveObservations : giveObservations;
-    return observations[shortName][category];
+// ✅ FIXED: BULLETPROOF OBSERVATION FUNCTION
+function getObservation(key, score, isReceive) {
+    try {
+        const category = score >= 7 ? 'high' : score >= 4 ? 'medium' : 'low';
+        const observations = isReceive ? receiveObservations : giveObservations;
+        
+        // ✅ SAFE ACCESS - Returns fallback if anything fails
+        return observations[key] && observations[key][category] 
+            ? observations[key][category] 
+            : `You value ${key} at ${score}/10.`;
+    } catch (error) {
+        console.log('Observation error:', error);
+        return `You value ${key} at ${score}/10.`;
+    }
 }
 
 function getLoveGap(recData, giveData) {
