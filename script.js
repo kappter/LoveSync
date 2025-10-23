@@ -327,9 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     updateLive();
 });
-// 🆕 ADD THIS - COMPARE FUNCTION
+
 function showCompare() {
-    const recData = [
+    const myRecData = [
         document.getElementById('rec_words').value,
         document.getElementById('rec_acts').value,
         document.getElementById('rec_gifts').value,
@@ -337,13 +337,17 @@ function showCompare() {
         document.getElementById('rec_touch').value
     ].map(Number);
 
-    const giveData = [
+    const myGiveData = [
         document.getElementById('give_words').value,
         document.getElementById('give_acts').value,
         document.getElementById('give_gifts').value,
         document.getElementById('give_time').value,
         document.getElementById('give_touch').value
     ].map(Number);
+
+    // Placeholder for another person's data (editable by user later)
+    const otherRecData = [7, 4, 6, 8, 3]; // Example: Words=7, Acts=4, Gifts=6, Time=8, Touch=3
+    const otherGiveData = [5, 9, 4, 7, 2]; // Example: Words=5, Acts=9, Gifts=4, Time=7, Touch=2
 
     const compareHTML = `
 <!DOCTYPE html>
@@ -366,42 +370,64 @@ function showCompare() {
 <body>
     <div class="header">
         <h1>👫 LoveSync Compare</h1>
-        <p>Your Giving vs Receiving</p>
+        <p>You vs. Another Person</p>
     </div>
 
     <div class="charts-container">
         <div class="chart-box">
             <h2>🎯 How You Receive</h2>
-            <canvas id="receiveChart"></canvas>
+            <canvas id="myReceiveChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h2>🎯 How They Receive</h2>
+            <canvas id="otherReceiveChart"></canvas>
         </div>
         <div class="chart-box">
             <h2>🎁 How You Give</h2>
-            <canvas id="giveChart"></canvas>
+            <canvas id="myGiveChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h2>🎁 How They Give</h2>
+            <canvas id="otherGiveChart"></canvas>
         </div>
     </div>
 
     <div class="insights">
         <h2>💡 Key Insights</h2>
         <div class="insight">
-            <strong>Love Gap:</strong> ${getLoveGap(recData, giveData)}
+            <strong>Receive Match:</strong> Your top receive (${getTopMatch(myRecData, myGiveData)}) vs. their top receive (${getTopMatch(otherRecData, otherGiveData)}).
         </div>
         <div class="insight">
-            <strong>Top Match:</strong> ${getTopMatch(recData, giveData)}
+            <strong>Give Match:</strong> Your top give (${getTopMatch(myGiveData, myRecData)}) vs. their top give (${getTopMatch(otherGiveData, otherRecData)}).
         </div>
     </div>
 
     <script>
-        new Chart(document.getElementById('receiveChart'), {
+        new Chart(document.getElementById('myReceiveChart'), {
             type: 'radar',
             data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
-                    datasets: [{ label: 'Receive', data: [${recData.join(',')}], 
+                    datasets: [{ label: 'You Receive', data: [${myRecData.join(',')}], 
                                 backgroundColor: 'rgba(52, 152, 219, 0.2)', borderColor: '#3498db' }] },
             options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
         });
-        new Chart(document.getElementById('giveChart'), {
+        new Chart(document.getElementById('otherReceiveChart'), {
             type: 'radar',
             data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
-                    datasets: [{ label: 'Give', data: [${giveData.join(',')}], 
+                    datasets: [{ label: 'Their Receive', data: [${otherRecData.join(',')}], 
+                                backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: '#2ecc71' }] },
+            options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
+        });
+        new Chart(document.getElementById('myGiveChart'), {
+            type: 'radar',
+            data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
+                    datasets: [{ label: 'You Give', data: [${myGiveData.join(',')}], 
+                                backgroundColor: 'rgba(52, 152, 219, 0.2)', borderColor: '#3498db' }] },
+            options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
+        });
+        new Chart(document.getElementById('otherGiveChart'), {
+            type: 'radar',
+            data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
+                    datasets: [{ label: 'Their Give', data: [${otherGiveData.join(',')}], 
                                 backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: '#2ecc71' }] },
             options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
         });
