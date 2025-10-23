@@ -327,3 +327,88 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     updateLive();
 });
+// 🆕 ADD THIS - COMPARE FUNCTION
+function showCompare() {
+    const recData = [
+        document.getElementById('rec_words').value,
+        document.getElementById('rec_acts').value,
+        document.getElementById('rec_gifts').value,
+        document.getElementById('rec_time').value,
+        document.getElementById('rec_touch').value
+    ].map(Number);
+
+    const giveData = [
+        document.getElementById('give_words').value,
+        document.getElementById('give_acts').value,
+        document.getElementById('give_gifts').value,
+        document.getElementById('give_time').value,
+        document.getElementById('give_touch').value
+    ].map(Number);
+
+    const compareHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync Compare ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Georgia, serif; max-width: 1000px; margin: 0 auto; padding: 2rem; background: #f8f9fa; }
+        .header { text-align: center; color: #2c3e50; margin-bottom: 2rem; }
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; }
+        .chart-box { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .chart-box h2 { text-align: center; color: #3498db; margin-bottom: 1rem; }
+        .insights { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 2rem; }
+        .insight { padding: 1rem; margin: 1rem 0; border-left: 4px solid #3498db; background: #f8f9fa; border-radius: 5px; }
+        @media (max-width: 768px) { .charts-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👫 LoveSync Compare</h1>
+        <p>Your Giving vs Receiving</p>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-box">
+            <h2>🎯 How You Receive</h2>
+            <canvas id="receiveChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h2>🎁 How You Give</h2>
+            <canvas id="giveChart"></canvas>
+        </div>
+    </div>
+
+    <div class="insights">
+        <h2>💡 Key Insights</h2>
+        <div class="insight">
+            <strong>Love Gap:</strong> ${getLoveGap(recData, giveData)}
+        </div>
+        <div class="insight">
+            <strong>Top Match:</strong> ${getTopMatch(recData, giveData)}
+        </div>
+    </div>
+
+    <script>
+        new Chart(document.getElementById('receiveChart'), {
+            type: 'radar',
+            data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
+                    datasets: [{ label: 'Receive', data: [${recData.join(',')}], 
+                                backgroundColor: 'rgba(52, 152, 219, 0.2)', borderColor: '#3498db' }] },
+            options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
+        });
+        new Chart(document.getElementById('giveChart'), {
+            type: 'radar',
+            data: { labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'], 
+                    datasets: [{ label: 'Give', data: [${giveData.join(',')}], 
+                                backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: '#2ecc71' }] },
+            options: { responsive: true, scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
+        });
+    </script>
+</body>
+</html>`;
+
+    window.open().document.write(compareHTML);
+    window.open().document.close();
+}
