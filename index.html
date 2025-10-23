@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Languages Evaluator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>❤️ Love Languages</h1>
+        <p class="subtitle">Slide to rate 1-10 (updates live)</p>
+    </div>
+
+    <!-- Sliders -->
+    <div class="slider-group">
+        <div class="language-title">Words of Affirmation</div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Receive</span><span id="val_rec_words">5</span>
+            </div>
+            <input type="range" id="rec_words" min="1" max="10" value="5">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Give</span><span id="val_give_words">5</span>
+            </div>
+            <input type="range" id="give_words" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <div class="slider-group">
+        <div class="language-title">Acts of Service</div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Receive</span><span id="val_rec_acts">5</span>
+            </div>
+            <input type="range" id="rec_acts" min="1" max="10" value="5">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Give</span><span id="val_give_acts">5</span>
+            </div>
+            <input type="range" id="give_acts" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <div class="slider-group">
+        <div class="language-title">Receiving Gifts</div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Receive</span><span id="val_rec_gifts">5</span>
+            </div>
+            <input type="range" id="rec_gifts" min="1" max="10" value="5">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Give</span><span id="val_give_gifts">5</span>
+            </div>
+            <input type="range" id="give_gifts" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <div class="slider-group">
+        <div class="language-title">Quality Time</div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Receive</span><span id="val_rec_time">5</span>
+            </div>
+            <input type="range" id="rec_time" min="1" max="10" value="5">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Give</span><span id="val_give_time">5</span>
+            </div>
+            <input type="range" id="give_time" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <div class="slider-group">
+        <div class="language-title">Physical Touch</div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Receive</span><span id="val_rec_touch">5</span>
+            </div>
+            <input type="range" id="rec_touch" min="1" max="10" value="5">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Give</span><span id="val_give_touch">5</span>
+            </div>
+            <input type="range" id="give_touch" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div id="chart-container">
+        <canvas id="loveChart"></canvas>
+    </div>
+
+    <!-- Description -->
+    <div id="description"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
