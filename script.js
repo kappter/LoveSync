@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// 🚀 UPGRADED: REPORT WITH LIVE CHARTS!
+// 🚀 FIXED: REPORT WITH WORKING CHARTS!
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -159,10 +159,9 @@ function generateReport() {
         document.getElementById('give_touch').value
     ].map(Number);
 
-    // 📊 CREATE CHART DATA URL (PNG)
-    const chartDataURL = createChartImage(recData, giveData);
-
-    const reportHTML = `
+    // 🎯 WAIT FOR CHART IMAGE, THEN GENERATE REPORT
+    createChartImage(recData, giveData).then(chartDataURL => {
+        const reportHTML = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -179,7 +178,12 @@ function generateReport() {
             border-radius: 10px; 
             margin: 2rem 0; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .chart-container img { width: 100%; height: 100%; object-fit: contain; }
+        .no-chart { color: #7f8c8d; font-style: italic; }
         .section { margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; }
         h2 { color: #3498db; border-left: 4px solid #2ecc71; padding-left: 1rem; }
         .language-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
@@ -210,7 +214,8 @@ function generateReport() {
     </div>
 
     <div class="chart-container">
-        <img src="${chartDataURL}" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="${chartDataURL}" alt="LoveSync Chart" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div class="no-chart" style="display: none;">⭐ Your LoveSync Chart</div>
     </div>
 
     <div class="section">
@@ -240,56 +245,114 @@ function generateReport() {
 </body>
 </html>`;
 
-    const newWindow = window.open('', '_blank');
-    newWindow.document.write(reportHTML);
-    newWindow.document.close();
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(reportHTML);
+        newWindow.document.close();
+    });
 }
 
-// 🆕 NEW: CREATE CHART AS IMAGE
+// 🆕 FIXED: ASYNC CHART IMAGE GENERATION
 function createChartImage(recData, giveData) {
-    // Create temporary canvas
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 600;
-    tempCanvas.height = 400;
-    
-    // Create chart config with current data
-    const tempConfig = {
-        type: 'radar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Receive',
-                data: recData,
-                backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                borderColor: '#3498db',
-                pointBackgroundColor: colors,
-                pointBorderColor: '#fff',
-                borderWidth: 2
-            }, {
-                label: 'Give',
-                data: giveData,
-                backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                borderColor: '#2ecc71',
-                pointBackgroundColor: colors.map(c => c + '80'),
-                pointBorderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
-            plugins: { 
-                legend: { position: 'bottom', labels: { font: { size: 12 } } } 
+    return new Promise((resolve) => {
+        // Create temporary canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 600;
+        tempCanvas.height = 400;
+        const ctx = tempCanvas.getContext('2d');
+        
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 600, 400);
+        
+        // Create chart config
+        const tempConfig = {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Receive',
+                    data: recData,
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    pointBackgroundColor: colors,
+                    pointBorderColor: '#fff',
+                    borderWidth: 2
+                }, {
+                    label: 'Give',
+                    data: giveData,
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: '#2ecc71',
+                    pointBackgroundColor: colors.map(c => c + '80'),
+                    pointBorderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    r: { 
+                        min: 0, 
+                        max: 10, 
+                        ticks: { stepSize: 2 },
+                        grid: { color: '#e0e0e0' },
+                        angleLines: { color: '#e0e0e0' },
+                        pointLabels: { font: { size: 12 } }
+                    } 
+                },
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { font: { size: 12 } } 
+                    } 
+                }
             }
-        }
-    };
+        };
 
-    // Render chart to temp canvas
-    const tempChart = new Chart(tempCanvas, tempConfig);
+        // Render chart
+        const tempChart = new Chart(tempCanvas, tempConfig);
+        
+        // WAIT for render, THEN get image
+        setTimeout(() => {
+            try {
+                const dataURL = tempCanvas.toDataURL('image/png');
+                // Clean up
+                tempChart.destroy();
+                resolve(dataURL);
+            } catch (error) {
+                console.log('Chart image error:', error);
+                // Fallback: simple colored rectangle
+                tempChart.destroy();
+                resolve(createFallbackChart(recData, giveData));
+            }
+        }, 500); // Give Chart.js time to render
+    });
+}
+
+// 🛡️ FALLBACK: Simple colored chart if Chart.js fails
+function createFallbackChart(recData, giveData) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
     
-    // Convert to data URL
-    return tempCanvas.toDataURL('image/png');
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+    gradient.addColorStop(0, '#f8f9fa');
+    gradient.addColorStop(1, '#e9ecef');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 600, 400);
+    
+    // Center text
+    ctx.fillStyle = '#3498db';
+    ctx.font = '24px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText('LoveSync Chart', 300, 180);
+    ctx.font = '14px Georgia';
+    ctx.fillStyle = '#7f8c8d';
+    ctx.fillText('Receive: Blue • Give: Green', 300, 210);
+    
+    return canvas.toDataURL('image/png');
 }
 
 function createLanguageCards(data, isReceive) {
@@ -335,6 +398,7 @@ function getTopMatch(recData, giveData) {
     return fullLabels[topMatchIndex];
 }
 
+// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[type="range"]').forEach(slider => {
         slider.removeEventListener('input', updateLive);
