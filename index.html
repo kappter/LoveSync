@@ -9,70 +9,65 @@
 </head>
 <body>
     <div class="container">
-        <!-- 🎯 CLEAR HORIZONTAL SLIDERS -->
-        <div class="sliders-wrapper">
-            <!-- RECEIVE -->
-            <div class="sliders-column">
-                <h3 style="text-align:center; color:#3498db; margin:0.5rem 0;">🎯 RECEIVE</h3>
-                <div class="slider-group">
-                    <label>Words</label>
-                    <input type="range" id="rec_words" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_words">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Acts</label>
-                    <input type="range" id="rec_acts" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_acts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Gifts</label>
-                    <input type="range" id="rec_gifts" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_gifts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Time</label>
-                    <input type="range" id="rec_time" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_time">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Touch</label>
-                    <input type="range" id="rec_touch" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_touch">5</span>
-                </div>
-            </div>
+        <!-- 🎯 TOGGLE BUTTON -->
+        <button class="toggle-btn" onclick="toggleSliders()">📱 Show Sliders</button>
 
-            <!-- GIVE -->
-            <div class="sliders-column">
-                <h3 style="text-align:center; color:#2ecc71; margin:0.5rem 0;">🎁 GIVE</h3>
-                <div class="slider-group">
-                    <label>Words</label>
-                    <input type="range" id="give_words" min="1" max="10" value="5">
-                    <span class="value" id="val_give_words">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Acts</label>
-                    <input type="range" id="give_acts" min="1" max="10" value="5">
-                    <span class="value" id="val_give_acts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Gifts</label>
-                    <input type="range" id="give_gifts" min="1" max="10" value="5">
-                    <span class="value" id="val_give_gifts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Time</label>
-                    <input type="range" id="give_time" min="1" max="10" value="5">
-                    <span class="value" id="val_give_time">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Touch</label>
-                    <input type="range" id="give_touch" min="1" max="10" value="5">
-                    <span class="value" id="val_give_touch">5</span>
-                </div>
+        <!-- SLIDERS (HIDDEN BY DEFAULT ON MOBILE) -->
+        <div class="sliders-container" id="slidersContainer">
+            <!-- YOUR ORIGINAL 10 HORIZONTAL SLIDERS -->
+            <div class="slider-group">
+                <label>Words</label>
+                <input type="range" id="rec_words" min="1" max="10" value="5">
+                <span class="value" id="val_rec_words">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Acts</label>
+                <input type="range" id="rec_acts" min="1" max="10" value="5">
+                <span class="value" id="val_rec_acts">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Gifts</label>
+                <input type="range" id="rec_gifts" min="1" max="10" value="5">
+                <span class="value" id="val_rec_gifts">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Time</label>
+                <input type="range" id="rec_time" min="1" max="10" value="5">
+                <span class="value" id="val_rec_time">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Touch</label>
+                <input type="range" id="rec_touch" min="1" max="10" value="5">
+                <span class="value" id="val_rec_touch">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Words</label>
+                <input type="range" id="give_words" min="1" max="10" value="5">
+                <span class="value" id="val_give_words">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Acts</label>
+                <input type="range" id="give_acts" min="1" max="10" value="5">
+                <span class="value" id="val_give_acts">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Gifts</label>
+                <input type="range" id="give_gifts" min="1" max="10" value="5">
+                <span class="value" id="val_give_gifts">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Time</label>
+                <input type="range" id="give_time" min="1" max="10" value="5">
+                <span class="value" id="val_give_time">5</span>
+            </div>
+            <div class="slider-group">
+                <label>Touch</label>
+                <input type="range" id="give_touch" min="1" max="10" value="5">
+                <span class="value" id="val_give_touch">5</span>
             </div>
         </div>
 
-        <!-- GRAPH - ALWAYS VISIBLE -->
+        <!-- BIG CHART - ALWAYS VISIBLE -->
         <div class="chart-section">
             <canvas id="loveChart"></canvas>
         </div>
