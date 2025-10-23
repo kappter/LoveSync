@@ -713,3 +713,16 @@ function getCompareInsights(recData, giveData) {
     
     return insights.join('');
 }
+// 🎯 TOGGLE SLIDERS
+function toggleSliders() {
+    const container = document.getElementById('slidersContainer');
+    const button = document.querySelector('.toggle-btn');
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'flex';
+        button.textContent = '📱 Hide Sliders';
+    } else {
+        container.style.display = 'none';
+        button.textContent = '📱 Show Sliders';
+    }
+}
