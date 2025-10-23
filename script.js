@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// FIXED: BULLETPROOF GENERATE REPORT FUNCTION
+// 🚀 UPGRADED: REPORT WITH LIVE CHARTS!
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -159,6 +159,9 @@ function generateReport() {
         document.getElementById('give_touch').value
     ].map(Number);
 
+    // 📊 CREATE CHART DATA URL (PNG)
+    const chartDataURL = createChartImage(recData, giveData);
+
     const reportHTML = `
 <!DOCTYPE html>
 <html>
@@ -170,16 +173,12 @@ function generateReport() {
         .header { text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 1rem; margin-bottom: 2rem; }
         h1 { color: #2c3e50; margin-bottom: 0.5rem; }
         .date { color: #7f8c8d; font-style: italic; }
-        .chart-placeholder { 
-            height: 300px; 
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef); 
-            border: 2px dashed #3498db; 
+        .chart-container { 
+            height: 350px; 
+            background: white;
             border-radius: 10px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
             margin: 2rem 0; 
-            color: #7f8c8d; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .section { margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; }
         h2 { color: #3498db; border-left: 4px solid #2ecc71; padding-left: 1rem; }
@@ -198,7 +197,10 @@ function generateReport() {
         .observation { font-style: italic; color: #555; }
         .insights { background: #fff3cd; border: 1px solid #ffeaa7; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
         .footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; color: #7f8c8d; }
-        @media print { body { padding: 0.5rem; } .chart-placeholder { display: none; } }
+        @media print { 
+            body { padding: 0.5rem; } 
+            .chart-container { height: 300px !important; }
+        }
     </style>
 </head>
 <body>
@@ -207,8 +209,8 @@ function generateReport() {
         <p class="date">Generated on ${new Date().toLocaleDateString()}</p>
     </div>
 
-    <div class="chart-placeholder">
-        ⭐ Your LoveSync Chart (View in App) ⭐
+    <div class="chart-container">
+        <img src="${chartDataURL}" style="width: 100%; height: 100%; object-fit: contain;">
     </div>
 
     <div class="section">
@@ -243,7 +245,53 @@ function generateReport() {
     newWindow.document.close();
 }
 
-// ✅ FIXED: BULLETPROOF LANGUAGE CARDS
+// 🆕 NEW: CREATE CHART AS IMAGE
+function createChartImage(recData, giveData) {
+    // Create temporary canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 600;
+    tempCanvas.height = 400;
+    
+    // Create chart config with current data
+    const tempConfig = {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Receive',
+                data: recData,
+                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                borderColor: '#3498db',
+                pointBackgroundColor: colors,
+                pointBorderColor: '#fff',
+                borderWidth: 2
+            }, {
+                label: 'Give',
+                data: giveData,
+                backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                borderColor: '#2ecc71',
+                pointBackgroundColor: colors.map(c => c + '80'),
+                pointBorderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
+            plugins: { 
+                legend: { position: 'bottom', labels: { font: { size: 12 } } } 
+            }
+        }
+    };
+
+    // Render chart to temp canvas
+    const tempChart = new Chart(tempCanvas, tempConfig);
+    
+    // Convert to data URL
+    return tempCanvas.toDataURL('image/png');
+}
+
 function createLanguageCards(data, isReceive) {
     return labels.map((label, i) => {
         const score = data[i];
@@ -261,18 +309,14 @@ function createLanguageCards(data, isReceive) {
     }).join('');
 }
 
-// ✅ FIXED: BULLETPROOF OBSERVATION FUNCTION
 function getObservation(key, score, isReceive) {
     try {
         const category = score >= 7 ? 'high' : score >= 4 ? 'medium' : 'low';
         const observations = isReceive ? receiveObservations : giveObservations;
-        
-        // ✅ SAFE ACCESS - Returns fallback if anything fails
         return observations[key] && observations[key][category] 
             ? observations[key][category] 
             : `You value ${key} at ${score}/10.`;
     } catch (error) {
-        console.log('Observation error:', error);
         return `You value ${key} at ${score}/10.`;
     }
 }
