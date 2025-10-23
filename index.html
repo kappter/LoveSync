@@ -9,64 +9,70 @@
 </head>
 <body>
     <div class="container">
-        <!-- 🎯 COMPACT VERTICAL SLIDERS -->
-        <div class="sliders-container">
+        <!-- 🎯 CLEAR HORIZONTAL SLIDERS -->
+        <div class="sliders-wrapper">
             <!-- RECEIVE -->
-            <div class="slider-group">
-                <label>W</label>
-                <input type="range" id="rec_words" min="1" max="10" value="5">
-                <span class="value" id="val_rec_words">5</span>
+            <div class="sliders-column">
+                <h3 style="text-align:center; color:#3498db; margin:0.5rem 0;">🎯 RECEIVE</h3>
+                <div class="slider-group">
+                    <label>Words</label>
+                    <input type="range" id="rec_words" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_words">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Acts</label>
+                    <input type="range" id="rec_acts" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_acts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Gifts</label>
+                    <input type="range" id="rec_gifts" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_gifts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Time</label>
+                    <input type="range" id="rec_time" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_time">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Touch</label>
+                    <input type="range" id="rec_touch" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_touch">5</span>
+                </div>
             </div>
-            <div class="slider-group">
-                <label>A</label>
-                <input type="range" id="rec_acts" min="1" max="10" value="5">
-                <span class="value" id="val_rec_acts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>G</label>
-                <input type="range" id="rec_gifts" min="1" max="10" value="5">
-                <span class="value" id="val_rec_gifts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>T</label>
-                <input type="range" id="rec_time" min="1" max="10" value="5">
-                <span class="value" id="val_rec_time">5</span>
-            </div>
-            <div class="slider-group">
-                <label>TO</label>
-                <input type="range" id="rec_touch" min="1" max="10" value="5">
-                <span class="value" id="val_rec_touch">5</span>
-            </div>
-            
+
             <!-- GIVE -->
-            <div class="slider-group">
-                <label>w</label>
-                <input type="range" id="give_words" min="1" max="10" value="5">
-                <span class="value" id="val_give_words">5</span>
-            </div>
-            <div class="slider-group">
-                <label>a</label>
-                <input type="range" id="give_acts" min="1" max="10" value="5">
-                <span class="value" id="val_give_acts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>g</label>
-                <input type="range" id="give_gifts" min="1" max="10" value="5">
-                <span class="value" id="val_give_gifts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>t</label>
-                <input type="range" id="give_time" min="1" max="10" value="5">
-                <span class="value" id="val_give_time">5</span>
-            </div>
-            <div class="slider-group">
-                <label>to</label>
-                <input type="range" id="give_touch" min="1" max="10" value="5">
-                <span class="value" id="val_give_touch">5</span>
+            <div class="sliders-column">
+                <h3 style="text-align:center; color:#2ecc71; margin:0.5rem 0;">🎁 GIVE</h3>
+                <div class="slider-group">
+                    <label>Words</label>
+                    <input type="range" id="give_words" min="1" max="10" value="5">
+                    <span class="value" id="val_give_words">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Acts</label>
+                    <input type="range" id="give_acts" min="1" max="10" value="5">
+                    <span class="value" id="val_give_acts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Gifts</label>
+                    <input type="range" id="give_gifts" min="1" max="10" value="5">
+                    <span class="value" id="val_give_gifts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Time</label>
+                    <input type="range" id="give_time" min="1" max="10" value="5">
+                    <span class="value" id="val_give_time">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Touch</label>
+                    <input type="range" id="give_touch" min="1" max="10" value="5">
+                    <span class="value" id="val_give_touch">5</span>
+                </div>
             </div>
         </div>
 
-        <!-- CHART -->
+        <!-- GRAPH - ALWAYS VISIBLE -->
         <div class="chart-section">
             <canvas id="loveChart"></canvas>
         </div>
@@ -75,9 +81,9 @@
         <div id="description"></div>
 
         <!-- BUTTONS -->
-        <div style="text-align: center; padding: 1rem;">
-            <button class="compare-btn" onclick="showCompare()">👫 Compare Results</button>
-            <button class="generate-btn" onclick="generateReport()">📄 Generate My Report</button>
+        <div class="buttons">
+            <button class="compare-btn" onclick="showCompare()">👫 Compare</button>
+            <button class="generate-btn" onclick="generateReport()">📄 Report</button>
         </div>
     </div>
 
