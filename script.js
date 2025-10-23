@@ -328,7 +328,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLive();
 });
 
-function showCompare() {
+// 🆕 NEW: GENERATE SHAREABLE CODE
+function generateCode() {
     const myRecData = [
         document.getElementById('rec_words').value,
         document.getElementById('rec_acts').value,
@@ -345,9 +346,120 @@ function showCompare() {
         document.getElementById('give_touch').value
     ].map(Number);
 
-    // Placeholder for another person's data (editable by user later)
-    const otherRecData = [7, 4, 6, 8, 3]; // Example: Words=7, Acts=4, Gifts=6, Time=8, Touch=3
-    const otherGiveData = [5, 9, 4, 7, 2]; // Example: Words=5, Acts=9, Gifts=4, Time=7, Touch=2
+    // Generate a unique code using data + timestamp
+    const timestamp = new Date().toISOString().replace(/[:.-]/g, ''); // e.g., 20251023T1501
+    const dataString = [...myRecData, ...myGiveData].join('');
+    const code = `${timestamp.substring(0, 12)}${dataString}`.substring(0, 20); // 20 chars max
+
+    // Show code in a new window
+    const codeHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync - Share Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; text-align: center; }
+        h2 { color: #3498db; }
+        #codeDisplay { font-size: 1.5rem; font-weight: bold; color: #2ecc71; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px; }
+        button { background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <h2>Share This Code</h2>
+    <div id="codeDisplay">${code}</div>
+    <p>Share this code with another person to compare your LoveSync results.</p>
+    <button onclick="window.close()">Close</button>
+</body>
+</html>`;
+
+    window.open().document.write(codeHTML);
+    window.open().document.close();
+}
+
+// 🆕 UPDATED: COMPARE WITH CODE INPUT
+function showCompare() {
+    const inputHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync - Enter Compare Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; }
+        h2 { color: #3498db; text-align: center; }
+        .input-group { margin: 1rem 0; }
+        label { display: block; margin-bottom: 0.5rem; }
+        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
+        button { background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        #error { color: red; display: none; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h2>Enter Compare Code</h2>
+    <div class="input-group">
+        <label>Enter the code shared with you:</label>
+        <input type="text" id="compareCode" placeholder="e.g., 20251023T15055555555555" maxlength="20">
+        <button onclick="submitCode()">Submit</button>
+        <div id="error">Invalid code. Please try again or generate a new one.</div>
+    </div>
+
+    <script>
+        function submitCode() {
+            const code = document.getElementById('compareCode').value;
+            if (code.length !== 20 || !/^\d{12}\d{8}$/.test(code)) {
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+            fetch('https://your-api-endpoint.com/validate', { // Replace with actual API if needed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const recData = data.recData.map(Number);
+                    const giveData = data.giveData.map(Number);
+                    window.location.href = \`compare.html?code=${code}\`;
+                } else {
+                    document.getElementById('error').style.display = 'block';
+                }
+            })
+            .catch(() => {
+                document.getElementById('error').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>`;
+
+    const inputWindow = window.open();
+    inputWindow.document.write(inputHTML);
+    inputWindow.document.close();
+}
+
+// 🆕 ADD THIS TO HANDLE COMPARE DISPLAY (NEW FILE: compare.html)
+function displayCompare() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (!code) {
+        window.location.href = 'index.html'; // Redirect if no code
+        return;
+    }
+
+    // Parse code to extract data (simplified example)
+    const timestamp = code.substring(0, 12); // e.g., 20251023T1501
+    const dataString = code.substring(12);   // e.g., 5555555555 (10 digits for 5x2)
+    const myRecData = dataString.substring(0, 5).split('').map(Number);
+    const myGiveData = dataString.substring(5).split('').map(Number);
+
+    // For now, use placeholder other data (replace with actual comparison data later)
+    const otherRecData = [7, 4, 6, 8, 3]; // Example other person's receive
+    const otherGiveData = [5, 9, 4, 7, 2]; // Example other person's give
 
     const compareHTML = `
 <!DOCTYPE html>
@@ -435,6 +547,6 @@ function showCompare() {
 </body>
 </html>`;
 
-    window.open().document.write(compareHTML);
-    window.open().document.close();
+    document.write(compareHTML);
+    document.close();
 }
