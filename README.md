@@ -1,5 +1,9 @@
 # LoveSync ❤️
 
+LoveSync is a mobile-first, interactive web app that reimagines Gary Chapman's The 5 Love Languages® as a dynamic self-evaluation tool. Users rate their preferences for receiving and giving love across five categories—Words of Affirmation, Acts of Service, Receiving Gifts, Quality Time, and Physical Touch—using intuitive 1-10 sliders for each mode. As adjustments are made, a stunning radar chart instantly visualizes the results with two overlapping, transparent "stars": one for receiving (in vibrant blues) and one for giving (in soft greens), allowing independent patterns to emerge and highlighting synergies or mismatches in real-time.
+
+With a clean, touch-friendly interface optimized for phones and desktops, LoveSync delivers ranked summaries, personalized observations for every score, and a one-click PDF report generator. This professional, print-ready document includes the exact radar chart as a high-quality image, color-coded language cards with insights, love gap analysis (flagging significant receive/give differences), and a top match highlight—perfect for couples, counselors, or personal reflection to foster deeper connections.
+
 **Discover your unique rhythm of giving and receiving love**  
 *An interactive Five Love Languages self-evaluator with PDF reports*
 
