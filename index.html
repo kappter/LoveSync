@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Languages Evaluator</title>
+    <title>LoveSync</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="header">
-        <h1>❤️ Love Languages</h1>
+        <h1>❤️ LoveSync</h1>
         <p class="subtitle">Slide to rate 1-10 (updates live)</p>
     </div>
 
@@ -97,6 +97,13 @@
     <!-- Chart -->
     <div id="chart-container">
         <canvas id="loveChart"></canvas>
+    </div>
+
+    <!-- REPORT BUTTON -->
+    <div class="report-button">
+        <button onclick="generateReport()">
+            📄 Generate My LoveSync Report
+        </button>
     </div>
 
     <!-- Description -->
