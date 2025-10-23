@@ -3,7 +3,7 @@ const labels = ['Words', 'Acts', 'Gifts', 'Time', 'Touch'];
 const colors = ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c'];
 const fullLabels = ['Words of Affirmation', 'Acts of Service', 'Receiving Gifts', 'Quality Time', 'Physical Touch'];
 
-// OBSERVATION STATEMENTS (Key Addition!)
+// OBSERVATION STATEMENTS
 const receiveObservations = {
     'Words': {
         high: "You thrive on verbal encouragement! Compliments and sincere appreciation fill your love tank.",
@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// ⭐ NEW: GENERATE REPORT FUNCTION
+// GENERATE REPORT FUNCTION
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -159,7 +159,6 @@ function generateReport() {
         document.getElementById('give_touch').value
     ].map(Number);
 
-    // Create report HTML
     const reportHTML = `
 <!DOCTYPE html>
 <html>
@@ -239,13 +238,11 @@ function generateReport() {
 </body>
 </html>`;
 
-    // Open in new tab
     const newWindow = window.open('', '_blank');
     newWindow.document.write(reportHTML);
     newWindow.document.close();
 }
 
-// Helper functions for report
 function createLanguageCards(data, isReceive) {
     return labels.map((label, i) => {
         const score = data[i];
@@ -266,7 +263,8 @@ function createLanguageCards(data, isReceive) {
 function getObservation(language, score, isReceive) {
     const category = score >= 7 ? 'high' : score >= 4 ? 'medium' : 'low';
     const observations = isReceive ? receiveObservations : giveObservations;
-    return observations[language.split(' ')[0]][category];
+    const shortName = language.split(' ')[0];
+    return observations[shortName][category];
 }
 
 function getLoveGap(recData, giveData) {
