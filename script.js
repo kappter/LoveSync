@@ -329,3 +329,387 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     updateLive();
 });
+
+// ... (KEEP ALL EXISTING CODE EXACTLY THE SAME) ...
+
+// 🆕 NEW: COMPARE SCREEN
+function showCompare() {
+    const recData = [
+        document.getElementById('rec_words').value,
+        document.getElementById('rec_acts').value,
+        document.getElementById('rec_gifts').value,
+        document.getElementById('rec_time').value,
+        document.getElementById('rec_touch').value
+    ].map(Number);
+
+    const giveData = [
+        document.getElementById('give_words').value,
+        document.getElementById('give_acts').value,
+        document.getElementById('give_gifts').value,
+        document.getElementById('give_time').value,
+        document.getElementById('give_touch').value
+    ].map(Number);
+
+    const compareHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync Compare ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { 
+            font-family: Georgia, serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+        }
+        .header { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 2rem; 
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .charts-container { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2rem; 
+            margin: 2rem 0; 
+        }
+        .chart-box { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        }
+        .chart-box h2 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 1rem; 
+        }
+        .insights { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            margin-top: 2rem; 
+        }
+        .insight { 
+            padding: 1rem; 
+            margin: 1rem 0; 
+            border-left: 4px solid #3498db; 
+            background: #f8f9fa; 
+            border-radius: 5px; 
+        }
+        .strong-match { border-left-color: #2ecc71; background: #d5f4e6; }
+        .gap { border-left-color: #e74c3c; background: #fadbd8; }
+        .close-match { border-left-color: #f1c40f; background: #fef9e7; }
+        @media print { body { background: white; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👫 LoveSync Compare</h1>
+        <p>Your Giving vs Receiving Patterns</p>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-box">
+            <h2>🎯 How You Receive Love</h2>
+            <canvas id="receiveChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chart-box">
+            <h2>🎁 How You Give Love</h2>
+            <canvas id="giveChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <div class="insights">
+        <h2>💡 Relationship Reflections</h2>
+        ${getCompareInsights(recData, giveData)}
+    </div>
+
+    <script>
+        // RENDER RECEIVE CHART
+        new Chart(document.getElementById('receiveChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'],
+                datasets: [{
+                    label: 'Receive',
+                    data: [${recData.join(',')}],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    pointBackgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }
+            }
+        });
+
+        // RENDER GIVE CHART
+        new Chart(document.getElementById('giveChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'],
+                datasets: [{
+                    label: 'Give',
+                    data: [${giveData.join(',')}],
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: '#2ecc71',
+                    pointBackgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }
+            }
+        });
+    </script>
+</body>
+</html>`;
+
+    const compareWindow = window.open('', '_blank');
+    compareWindow.document.write(compareHTML);
+    compareWindow.document.close();
+}
+
+// 🆕 NEW: COMPARE INSIGHTS
+function getCompareInsights(recData, giveData) {
+    const insights = [];
+    const gaps = labels.map((_, i) => Math.abs(recData[i] - giveData[i]));
+    
+    // TOP 3 INSIGHTS
+    if (gaps.some(g => g > 4)) {
+        const bigGap = gaps.indexOf(Math.max(...gaps));
+        insights.push(`
+            <div class="insight gap">
+                <strong>💔 Love Gap Alert:</strong> You <strong>give ${fullLabels[bigGap]} ${giveData[bigGap]}/10</strong> 
+                but <strong>need ${recData[bigGap]}/10</strong>. Discuss how your partner can fill this gap!
+            </div>`);
+    }
+    
+    const matches = labels.map((_, i) => Math.min(recData[i], giveData[i]));
+    const bestMatch = matches.indexOf(Math.max(...matches));
+    insights.push(`
+        <div class="insight strong-match">
+            <strong>💚 Perfect Harmony:</strong> You both shine at <strong>${fullLabels[bestMatch]}</strong> 
+            (${Math.max(...matches)}/10). Keep nurturing this strength together!
+        </div>`);
+    
+    // OVERALL BALANCE
+    const avgRec = recData.reduce((a,b)=>a+b)/5;
+    const avgGive = giveData.reduce((a,b)=>a+b)/5;
+    const balance = Math.abs(avgRec - avgGive);
+    
+    if (balance < 1) {
+        insights.push(`
+            <div class="insight strong-match">
+                <strong>🎉 Beautiful Balance:</strong> Your giving (avg ${avgGive.toFixed(1)}) 
+                and receiving (avg ${avgRec.toFixed(1)}) are perfectly aligned!
+            </div>`);
+    } else {
+        insights.push(`
+            <div class="insight close-match">
+                <strong>⚖️ Slight Imbalance:</strong> You give ${avgGive.toFixed(1)}/10 
+                but receive ${avgRec.toFixed(1)}/10. Small adjustments can create harmony!
+            </div>`);
+    }
+    
+    return insights.join('');
+}
+
+// 🆕 NEW: COMPARE SCREEN
+function showCompare() {
+    const recData = [
+        document.getElementById('rec_words').value,
+        document.getElementById('rec_acts').value,
+        document.getElementById('rec_gifts').value,
+        document.getElementById('rec_time').value,
+        document.getElementById('rec_touch').value
+    ].map(Number);
+
+    const giveData = [
+        document.getElementById('give_words').value,
+        document.getElementById('give_acts').value,
+        document.getElementById('give_gifts').value,
+        document.getElementById('give_time').value,
+        document.getElementById('give_touch').value
+    ].map(Number);
+
+    const compareHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync Compare ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { 
+            font-family: Georgia, serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+        }
+        .header { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 2rem; 
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .charts-container { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2rem; 
+            margin: 2rem 0; 
+        }
+        .chart-box { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        }
+        .chart-box h2 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 1rem; 
+        }
+        .insights { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            margin-top: 2rem; 
+        }
+        .insight { 
+            padding: 1rem; 
+            margin: 1rem 0; 
+            border-left: 4px solid #3498db; 
+            background: #f8f9fa; 
+            border-radius: 5px; 
+        }
+        .strong-match { border-left-color: #2ecc71; background: #d5f4e6; }
+        .gap { border-left-color: #e74c3c; background: #fadbd8; }
+        .close-match { border-left-color: #f1c40f; background: #fef9e7; }
+        @media print { body { background: white; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👫 LoveSync Compare</h1>
+        <p>Your Giving vs Receiving Patterns</p>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-box">
+            <h2>🎯 How You Receive Love</h2>
+            <canvas id="receiveChart" width="400" height="400"></canvas>
+        </div>
+        <div class="chart-box">
+            <h2>🎁 How You Give Love</h2>
+            <canvas id="giveChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <div class="insights">
+        <h2>💡 Relationship Reflections</h2>
+        ${getCompareInsights(recData, giveData)}
+    </div>
+
+    <script>
+        // RENDER RECEIVE CHART
+        new Chart(document.getElementById('receiveChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'],
+                datasets: [{
+                    label: 'Receive',
+                    data: [${recData.join(',')}],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: '#3498db',
+                    pointBackgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }
+            }
+        });
+
+        // RENDER GIVE CHART
+        new Chart(document.getElementById('giveChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'],
+                datasets: [{
+                    label: 'Give',
+                    data: [${giveData.join(',')}],
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: '#2ecc71',
+                    pointBackgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }
+            }
+        });
+    </script>
+</body>
+</html>`;
+
+    const compareWindow = window.open('', '_blank');
+    compareWindow.document.write(compareHTML);
+    compareWindow.document.close();
+}
+
+// 🆕 NEW: COMPARE INSIGHTS
+function getCompareInsights(recData, giveData) {
+    const insights = [];
+    const gaps = labels.map((_, i) => Math.abs(recData[i] - giveData[i]));
+    
+    // TOP 3 INSIGHTS
+    if (gaps.some(g => g > 4)) {
+        const bigGap = gaps.indexOf(Math.max(...gaps));
+        insights.push(`
+            <div class="insight gap">
+                <strong>💔 Love Gap Alert:</strong> You <strong>give ${fullLabels[bigGap]} ${giveData[bigGap]}/10</strong> 
+                but <strong>need ${recData[bigGap]}/10</strong>. Discuss how your partner can fill this gap!
+            </div>`);
+    }
+    
+    const matches = labels.map((_, i) => Math.min(recData[i], giveData[i]));
+    const bestMatch = matches.indexOf(Math.max(...matches));
+    insights.push(`
+        <div class="insight strong-match">
+            <strong>💚 Perfect Harmony:</strong> You both shine at <strong>${fullLabels[bestMatch]}</strong> 
+            (${Math.max(...matches)}/10). Keep nurturing this strength together!
+        </div>`);
+    
+    // OVERALL BALANCE
+    const avgRec = recData.reduce((a,b)=>a+b)/5;
+    const avgGive = giveData.reduce((a,b)=>a+b)/5;
+    const balance = Math.abs(avgRec - avgGive);
+    
+    if (balance < 1) {
+        insights.push(`
+            <div class="insight strong-match">
+                <strong>🎉 Beautiful Balance:</strong> Your giving (avg ${avgGive.toFixed(1)}) 
+                and receiving (avg ${avgRec.toFixed(1)}) are perfectly aligned!
+            </div>`);
+    } else {
+        insights.push(`
+            <div class="insight close-match">
+                <strong>⚖️ Slight Imbalance:</strong> You give ${avgGive.toFixed(1)}/10 
+                but receive ${avgRec.toFixed(1)}/10. Small adjustments can create harmony!
+            </div>`);
+    }
+    
+    return insights.join('');
+}
