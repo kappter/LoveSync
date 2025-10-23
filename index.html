@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-use=device-width, initial-scale=1.0">
     <title>LoveSync ❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -12,62 +12,67 @@
         <!-- 🎯 TOGGLE BUTTON -->
         <button class="toggle-btn" onclick="toggleSliders()">📱 Show Sliders</button>
 
-        <!-- SLIDERS (HIDDEN BY DEFAULT ON MOBILE) -->
+        <!-- SLIDERS - HIDDEN ON MOBILE -->
         <div class="sliders-container" id="slidersContainer">
-            <!-- YOUR ORIGINAL 10 HORIZONTAL SLIDERS -->
-            <div class="slider-group">
-                <label>Words</label>
-                <input type="range" id="rec_words" min="1" max="10" value="5">
-                <span class="value" id="val_rec_words">5</span>
+            <div class="slider-row">
+                <h4 style="color:#3498db; text-align:center; margin:0.5rem 0;">🎯 RECEIVE LOVE</h4>
+                <div class="slider-group">
+                    <label>Words of Affirmation</label>
+                    <input type="range" id="rec_words" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_words">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Acts of Service</label>
+                    <input type="range" id="rec_acts" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_acts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Receiving Gifts</label>
+                    <input type="range" id="rec_gifts" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_gifts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Quality Time</label>
+                    <input type="range" id="rec_time" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_time">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Physical Touch</label>
+                    <input type="range" id="rec_touch" min="1" max="10" value="5">
+                    <span class="value" id="val_rec_touch">5</span>
+                </div>
             </div>
-            <div class="slider-group">
-                <label>Acts</label>
-                <input type="range" id="rec_acts" min="1" max="10" value="5">
-                <span class="value" id="val_rec_acts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Gifts</label>
-                <input type="range" id="rec_gifts" min="1" max="10" value="5">
-                <span class="value" id="val_rec_gifts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Time</label>
-                <input type="range" id="rec_time" min="1" max="10" value="5">
-                <span class="value" id="val_rec_time">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Touch</label>
-                <input type="range" id="rec_touch" min="1" max="10" value="5">
-                <span class="value" id="val_rec_touch">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Words</label>
-                <input type="range" id="give_words" min="1" max="10" value="5">
-                <span class="value" id="val_give_words">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Acts</label>
-                <input type="range" id="give_acts" min="1" max="10" value="5">
-                <span class="value" id="val_give_acts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Gifts</label>
-                <input type="range" id="give_gifts" min="1" max="10" value="5">
-                <span class="value" id="val_give_gifts">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Time</label>
-                <input type="range" id="give_time" min="1" max="10" value="5">
-                <span class="value" id="val_give_time">5</span>
-            </div>
-            <div class="slider-group">
-                <label>Touch</label>
-                <input type="range" id="give_touch" min="1" max="10" value="5">
-                <span class="value" id="val_give_touch">5</span>
+            <div class="slider-row">
+                <h4 style="color:#2ecc71; text-align:center; margin:0.5rem 0;">🎁 GIVE LOVE</h4>
+                <div class="slider-group">
+                    <label>Words of Affirmation</label>
+                    <input type="range" id="give_words" min="1" max="10" value="5">
+                    <span class="value" id="val_give_words">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Acts of Service</label>
+                    <input type="range" id="give_acts" min="1" max="10" value="5">
+                    <span class="value" id="val_give_acts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Receiving Gifts</label>
+                    <input type="range" id="give_gifts" min="1" max="10" value="5">
+                    <span class="value" id="val_give_gifts">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Quality Time</label>
+                    <input type="range" id="give_time" min="1" max="10" value="5">
+                    <span class="value" id="val_give_time">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>Physical Touch</label>
+                    <input type="range" id="give_touch" min="1" max="10" value="5">
+                    <span class="value" id="val_give_touch">5</span>
+                </div>
             </div>
         </div>
 
-        <!-- BIG CHART - ALWAYS VISIBLE -->
+        <!-- BIG CHART -->
         <div class="chart-section">
             <canvas id="loveChart"></canvas>
         </div>
