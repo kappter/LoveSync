@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// GENERATE REPORT FUNCTION
+// FIXED: GENERATE REPORT FUNCTION
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -243,11 +243,12 @@ function generateReport() {
     newWindow.document.close();
 }
 
+// FIXED: Pass SHORT label to getObservation
 function createLanguageCards(data, isReceive) {
     return labels.map((label, i) => {
         const score = data[i];
         const fullLabel = fullLabels[i];
-        const observation = getObservation(fullLabel, score, isReceive);
+        const observation = getObservation(label, score, isReceive);  // FIXED: Pass 'label' (short)
         const scoreClass = score >= 7 ? 'score-high' : score >= 4 ? 'score-medium' : 'score-low';
         const scoreColor = score >= 7 ? '#e74c3c' : score >= 4 ? '#f1c40f' : '#95a5a6';
         
@@ -260,10 +261,10 @@ function createLanguageCards(data, isReceive) {
     }).join('');
 }
 
-function getObservation(language, score, isReceive) {
+// FIXED: Now takes shortName
+function getObservation(shortName, score, isReceive) {
     const category = score >= 7 ? 'high' : score >= 4 ? 'medium' : 'low';
     const observations = isReceive ? receiveObservations : giveObservations;
-    const shortName = language.split(' ')[0];
     return observations[shortName][category];
 }
 
