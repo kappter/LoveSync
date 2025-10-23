@@ -157,3 +157,38 @@ input[type="range"]::-webkit-slider-thumb {
         height: 60px;
     }
 }
+
+/* 🎯 TOGGLE BUTTON */
+.toggle-btn {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 1rem;
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.toggle-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* HIDE SLIDERS ON MOBILE BY DEFAULT */
+@media (max-width: 768px) {
+    .sliders-container {
+        display: none; /* HIDDEN BY DEFAULT */
+    }
+}
+
+/* SHOW SLIDERS ON DESKTOP */
+@media (min-width: 769px) {
+    .toggle-btn {
+        display: none; /* HIDE BUTTON ON DESKTOP */
+    }
+}
