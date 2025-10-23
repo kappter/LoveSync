@@ -35,16 +35,15 @@ body {
 }
 
 .slider-group label {
-    font-size: 0.75rem; /* TINY LABELS */
+    font-size: 0.75rem !important;  /* BIGGER & CLEAR */
     font-weight: bold;
     color: #2c3e50;
     text-align: center;
-    writing-mode: vertical-rl; /* VERTICAL TEXT */
-    transform: rotate(180deg);
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: #ecf0f1;
+    padding: 0.25rem;
+    border-radius: 5px;
+    margin-bottom: 0.25rem;
+    min-height: 20px;
 }
 
 input[type="range"] {
