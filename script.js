@@ -141,7 +141,7 @@ function updateDescription(recData, giveData) {
     document.getElementById('description').innerHTML = desc;
 }
 
-// 🚀 FIXED: REPORT WITH WORKING CHARTS!
+// 🎯 SIMPLIFIED REPORT - CHART RENDERS DIRECTLY IN NEW WINDOW
 function generateReport() {
     const recData = [
         document.getElementById('rec_words').value,
@@ -159,14 +159,13 @@ function generateReport() {
         document.getElementById('give_touch').value
     ].map(Number);
 
-    // 🎯 WAIT FOR CHART IMAGE, THEN GENERATE REPORT
-    createChartImage(recData, giveData).then(chartDataURL => {
-        const reportHTML = `
+    const reportHTML = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>LoveSync Report - ${new Date().toLocaleDateString()}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; color: #333; }
         .header { text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 1rem; margin-bottom: 2rem; }
@@ -178,12 +177,7 @@ function generateReport() {
             border-radius: 10px; 
             margin: 2rem 0; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .chart-container img { width: 100%; height: 100%; object-fit: contain; }
-        .no-chart { color: #7f8c8d; font-style: italic; }
         .section { margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; }
         h2 { color: #3498db; border-left: 4px solid #2ecc71; padding-left: 1rem; }
         .language-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
@@ -204,6 +198,7 @@ function generateReport() {
         @media print { 
             body { padding: 0.5rem; } 
             .chart-container { height: 300px !important; }
+            canvas { max-height: 300px !important; }
         }
     </style>
 </head>
@@ -214,8 +209,7 @@ function generateReport() {
     </div>
 
     <div class="chart-container">
-        <img src="${chartDataURL}" alt="LoveSync Chart" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-        <div class="no-chart" style="display: none;">⭐ Your LoveSync Chart</div>
+        <canvas id="reportChart"></canvas>
     </div>
 
     <div class="section">
@@ -242,47 +236,28 @@ function generateReport() {
         <p>Powered by <strong>LoveSync</strong> • Based on The 5 Love Languages® by Gary Chapman</p>
         <p><em>Share this report with your partner for deeper connection!</em></p>
     </div>
-</body>
-</html>`;
 
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(reportHTML);
-        newWindow.document.close();
-    });
-}
-
-// 🆕 FIXED: ASYNC CHART IMAGE GENERATION
-function createChartImage(recData, giveData) {
-    return new Promise((resolve) => {
-        // Create temporary canvas
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 600;
-        tempCanvas.height = 400;
-        const ctx = tempCanvas.getContext('2d');
-        
-        // White background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 600, 400);
-        
-        // Create chart config
-        const tempConfig = {
+    <script>
+        // RENDER CHART IN REPORT
+        const ctx = document.getElementById('reportChart').getContext('2d');
+        new Chart(ctx, {
             type: 'radar',
             data: {
-                labels: labels,
+                labels: ['Words', 'Acts', 'Gifts', 'Time', 'Touch'],
                 datasets: [{
                     label: 'Receive',
-                    data: recData,
+                    data: [${recData.join(',')}],
                     backgroundColor: 'rgba(52, 152, 219, 0.2)',
                     borderColor: '#3498db',
-                    pointBackgroundColor: colors,
+                    pointBackgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c'],
                     pointBorderColor: '#fff',
                     borderWidth: 2
                 }, {
                     label: 'Give',
-                    data: giveData,
+                    data: [${giveData.join(',')}],
                     backgroundColor: 'rgba(46, 204, 113, 0.2)',
                     borderColor: '#2ecc71',
-                    pointBackgroundColor: colors.map(c => c + '80'),
+                    pointBackgroundColor: ['#3498db80', '#2ecc7180', '#f1c40f80', '#9b59b680', '#e74c3c80'],
                     pointBorderColor: '#fff',
                     borderWidth: 2
                 }]
@@ -290,69 +265,17 @@ function createChartImage(recData, giveData) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { 
-                    r: { 
-                        min: 0, 
-                        max: 10, 
-                        ticks: { stepSize: 2 },
-                        grid: { color: '#e0e0e0' },
-                        angleLines: { color: '#e0e0e0' },
-                        pointLabels: { font: { size: 12 } }
-                    } 
-                },
-                plugins: { 
-                    legend: { 
-                        position: 'bottom', 
-                        labels: { font: { size: 12 } } 
-                    } 
-                }
+                scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
+                plugins: { legend: { position: 'bottom' } }
             }
-        };
+        });
+    </script>
+</body>
+</html>`;
 
-        // Render chart
-        const tempChart = new Chart(tempCanvas, tempConfig);
-        
-        // WAIT for render, THEN get image
-        setTimeout(() => {
-            try {
-                const dataURL = tempCanvas.toDataURL('image/png');
-                // Clean up
-                tempChart.destroy();
-                resolve(dataURL);
-            } catch (error) {
-                console.log('Chart image error:', error);
-                // Fallback: simple colored rectangle
-                tempChart.destroy();
-                resolve(createFallbackChart(recData, giveData));
-            }
-        }, 500); // Give Chart.js time to render
-    });
-}
-
-// 🛡️ FALLBACK: Simple colored chart if Chart.js fails
-function createFallbackChart(recData, giveData) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = 400;
-    const ctx = canvas.getContext('2d');
-    
-    // Gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 600, 400);
-    gradient.addColorStop(0, '#f8f9fa');
-    gradient.addColorStop(1, '#e9ecef');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 600, 400);
-    
-    // Center text
-    ctx.fillStyle = '#3498db';
-    ctx.font = '24px Georgia';
-    ctx.textAlign = 'center';
-    ctx.fillText('LoveSync Chart', 300, 180);
-    ctx.font = '14px Georgia';
-    ctx.fillStyle = '#7f8c8d';
-    ctx.fillText('Receive: Blue • Give: Green', 300, 210);
-    
-    return canvas.toDataURL('image/png');
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(reportHTML);
+    newWindow.document.close();
 }
 
 function createLanguageCards(data, isReceive) {
