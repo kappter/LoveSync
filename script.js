@@ -35,6 +35,39 @@ function toggleSliders() {
     }
 }
 
+// 🎯 TOGGLE SLIDERS FUNCTION
+function toggleSliders() {
+    const container = document.getElementById('slidersContainer');
+    const button = document.querySelector('.toggle-btn');
+    
+    if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'flex';
+        button.textContent = '📱 Hide Sliders';
+    } else {
+        container.style.display = 'none';
+        button.textContent = '📱 Show Sliders';
+    }
+}
+
+// 🆕 MODAL FUNCTIONS
+function showInstructions() {
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = 'block';
+}
+
+function closeInstructions() {
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('instructionsModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
 // 🆕 GENERATE SHAREABLE CODE
 function generateCode() {
     const myData = getExpandedData();
