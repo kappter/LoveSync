@@ -81,11 +81,29 @@
         <div id="description"></div>
 
         <!-- BUTTONS -->
-       <div class="buttons">
-    <button class="compare-btn" onclick="showCompare()">📥 Receive Code</button>
-    <button class="generate-btn" onclick="generateCode()">🔑 Generate Code</button>
-    <button class="generate-btn" onclick="generateReport()">📄 Report</button>
-</div>
+        <div class="buttons">
+            <button class="compare-btn" onclick="showCompare()">📥 Receive Code</button>
+            <button class="generate-btn" onclick="generateCode()">🔑 Generate Code</button>
+            <button class="generate-btn" onclick="generateReport()">📄 Report</button>
+            <button class="info-btn" onclick="showInstructions()">ℹ️ Instructions</button>
+        </div>
+
+        <!-- MODAL FOR INSTRUCTIONS -->
+        <div id="instructionsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeInstructions()">&times;</span>
+                <h2>LoveSync Instructions</h2>
+                <p><strong>How to Use LoveSync:</strong></p>
+                <ol>
+                    <li>Adjust the sliders to reflect how you <strong>receive</strong> and <strong>give</strong> love across five languages: Words of Affirmation, Acts of Service, Receiving Gifts, Quality Time, and Physical Touch (1-10 scale).</li>
+                    <li>Click <strong>📱 Show Sliders</strong> on mobile to view or hide the sliders.</li>
+                    <li>To compare with someone, one person clicks <strong>🔑 Generate Code</strong> to create a unique share code based on their settings.</li>
+                    <li>The other person clicks <strong>📥 Receive Code</strong>, enters the shared code, and views a detailed comparison.</li>
+                    <li>Click <strong>📄 Report</strong> to generate a printable summary of your love language profile.</li>
+                </ol>
+                <p><em>Enjoy deeper connections with LoveSync! ❤️</em></p>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
