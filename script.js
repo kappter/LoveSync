@@ -257,8 +257,12 @@ function generateReport() {
 </html>`;
 
     const newWindow = window.open('', '_blank');
-    newWindow.document.write(reportHTML);
-    newWindow.document.close();
+    if (newWindow && newWindow.document) {
+        newWindow.document.write(reportHTML);
+        newWindow.document.close();
+    } else {
+        alert('Popup blocked. Please allow popups for this site to generate the report.');
+    }
 }
 
 function createLanguageCards(data, isReceive) {
@@ -306,7 +310,6 @@ function getTopMatch(recData, giveData) {
 
 // 🆕 EXPANDED DATA STRUCTURE (20 POINTS)
 const loveLanguages = ['Words', 'Acts', 'Gifts', 'Time', 'Touch'];
-const subCategories = ['Intensity', 'Frequency', 'Preference']; // 3 sub-categories per language
 
 function getExpandedData() {
     const baseRecData = loveLanguages.map(lang => parseInt(document.getElementById(`rec_${lang.toLowerCase()}`).value) || 5);
@@ -318,28 +321,26 @@ function getExpandedData() {
         // Receive data
         expandedData.push(baseRecData[i]); // Base score
         expandedData.push(Math.floor(baseRecData[i] * 0.8)); // Intensity (80% of base)
-        expandedData.push(Math.floor(baseRecData[i] * 0.6)); // Frequency (60% of base)
         // Give data
         expandedData.push(baseGiveData[i]); // Base score
         expandedData.push(Math.floor(baseGiveData[i] * 0.7)); // Intensity (70% of base)
-        expandedData.push(Math.floor(baseGiveData[i] * 0.5)); // Frequency (50% of base)
     });
     return expandedData;
 }
 
-// 🆕 GENERATE SHAREABLE CODE
+// 🆕 GENERATE SHAREABLE CODE (BIDIRECTIONAL)
 function generateCode() {
     const myData = getExpandedData();
-    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T1709
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T1716
     const dataHash = btoa(String(myData.reduce((a, b) => a + b, 0))).substring(0, 6); // Base64 hash of sum
-    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 1709X7K9P2 (10 chars)
+    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 1716X7K9P2 (10 chars)
 
     const codeHTML = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>LoveSync - Share Code</title>
+    <title>LoveSync - Share Your Code</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; text-align: center; }
         h2 { color: #3498db; }
@@ -349,18 +350,23 @@ function generateCode() {
     </style>
 </head>
 <body>
-    <h2>Share This Code</h2>
+    <h2>Share Your Code</h2>
     <div id="codeDisplay">${code}</div>
     <p>Share this code with another person to compare your LoveSync results.</p>
     <button onclick="window.close()">Close</button>
 </body>
 </html>`;
 
-    window.open().document.write(codeHTML);
-    window.open().document.close();
+    const newWindow = window.open('', '_blank');
+    if (newWindow && newWindow.document) {
+        newWindow.document.write(codeHTML);
+        newWindow.document.close();
+    } else {
+        alert('Popup blocked. Please allow popups for this site to generate the code.');
+    }
 }
 
-// 🆕 RECEIVE AND COMPARE
+// 🆕 RECEIVE AND COMPARE (BIDIRECTIONAL)
 function showCompare() {
     const inputHTML = `
 <!DOCTYPE html>
@@ -383,7 +389,7 @@ function showCompare() {
     <h2>Enter Compare Code</h2>
     <div class="input-group">
         <label>Enter the code shared with you:</label>
-        <input type="text" id="compareCode" placeholder="e.g., 1709X7K9P2" maxlength="10">
+        <input type="text" id="compareCode" placeholder="e.g., 1716X7K9P2" maxlength="10">
         <button onclick="submitCode()">Submit</button>
         <div id="error">Invalid code. Please try again or generate a new one.</div>
     </div>
@@ -395,15 +401,19 @@ function showCompare() {
                 document.getElementById('error').style.display = 'block';
                 return;
             }
-            window.location.href = \`compare.html?code=${code}\`;
+            window.location.href = \`compare.html?code=\${encodeURIComponent(code)}\`; // Encode for safety
         }
     </script>
 </body>
 </html>`;
 
-    const inputWindow = window.open();
-    inputWindow.document.write(inputHTML);
-    inputWindow.document.close();
+    const inputWindow = window.open('', '_blank');
+    if (inputWindow && inputWindow.document) {
+        inputWindow.document.write(inputHTML);
+        inputWindow.document.close();
+    } else {
+        alert('Popup blocked. Please allow popups for this site to enter the code.');
+    }
 }
 
 // 🆕 DISPLAY COMPARE WITH 20 DATA POINTS
@@ -416,10 +426,10 @@ function displayCompare() {
         return;
     }
 
-    // Parse my data from code (simplified; assume stored or fetched)
-    const myData = getExpandedData(); // User's current data
-    const timestamp = code.substring(0, 4); // e.g., 1709
-    const otherData = [7, 6, 5, 8, 4, 6, 5, 4, 3, 6, 5, 4, 7, 6, 5, 8, 4, 3, 2, 1]; // Example other person's 20 points
+    // User's current data
+    const myData = getExpandedData();
+    // Placeholder for other person's data (replace with server fetch in production)
+    const otherData = [7, 6, 5, 8, 4, 6, 5, 4, 3, 6, 5, 4, 7, 6, 5, 8, 4, 3, 2, 1];
 
     const compareHTML = `
 <!DOCTYPE html>
