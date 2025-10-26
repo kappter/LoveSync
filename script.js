@@ -5,59 +5,19 @@ const fullLabels = ['Words of Affirmation', 'Acts of Service', 'Receiving Gifts'
 
 // OBSERVATION STATEMENTS
 const receiveObservations = {
-    'Words': {
-        high: "You thrive on verbal encouragement! Compliments and sincere appreciation fill your love tank.",
-        medium: "Words of affirmation are meaningful to you and help you feel valued.",
-        low: "Verbal praise isn't your primary love language, but kind words still touch your heart."
-    },
-    'Acts': {
-        high: "Nothing says 'I love you' like helping with tasks! You feel deeply loved through practical support.",
-        medium: "Help with chores and responsibilities makes you feel cared for.",
-        low: "Acts of service are appreciated but not your main way of feeling loved."
-    },
-    'Gifts': {
-        high: "Thoughtful gifts speak volumes to you! They show you've been remembered.",
-        medium: "Small, meaningful gifts warm your heart and make you feel special.",
-        low: "Gifts are nice but not essential for you to feel loved."
-    },
-    'Time': {
-        high: "Undivided attention is your love language! Quality time makes you feel truly connected.",
-        medium: "Shared experiences and focused attention strengthen your relationships.",
-        low: "Quality time is pleasant but not your primary need."
-    },
-    'Touch': {
-        high: "Physical touch is your love language! Hugs, hand-holding, and closeness make you feel secure.",
-        medium: "Physical affection helps you feel connected and loved.",
-        low: "Touch is comforting but not your main way of receiving love."
-    }
+    'Words': { high: "You thrive on verbal encouragement! Compliments and sincere appreciation fill your love tank.", medium: "Words of affirmation are meaningful to you and help you feel valued.", low: "Verbal praise isn't your primary love language, but kind words still touch your heart." },
+    'Acts': { high: "Nothing says 'I love you' like helping with tasks! You feel deeply loved through practical support.", medium: "Help with chores and responsibilities makes you feel cared for.", low: "Acts of service are appreciated but not your main way of feeling loved." },
+    'Gifts': { high: "Thoughtful gifts speak volumes to you! They show you've been remembered.", medium: "Small, meaningful gifts warm your heart and make you feel special.", low: "Gifts are nice but not essential for you to feel loved." },
+    'Time': { high: "Undivided attention is your love language! Quality time makes you feel truly connected.", medium: "Shared experiences and focused attention strengthen your relationships.", low: "Quality time is pleasant but not your primary need." },
+    'Touch': { high: "Physical touch is your love language! Hugs, hand-holding, and closeness make you feel secure.", medium: "Physical affection helps you feel connected and loved.", low: "Touch is comforting but not your main way of receiving love." }
 };
 
 const giveObservations = {
-    'Words': {
-        high: "You naturally encourage others! Your affirming words uplift those around you.",
-        medium: "You enjoy giving compliments and positive feedback when it feels authentic.",
-        low: "Verbal affirmation isn't your go-to way of showing love."
-    },
-    'Acts': {
-        high: "You're a natural helper! Serving others through actions is how you show your love.",
-        medium: "You like helping out and making life easier for those you care about.",
-        low: "Practical help isn't your primary way of expressing love."
-    },
-    'Gifts': {
-        high: "You love giving thoughtful gifts! Finding the perfect present brings you joy.",
-        medium: "You enjoy giving meaningful gifts on special occasions.",
-        low: "Gifts aren't your main way of showing appreciation."
-    },
-    'Time': {
-        high: "Your presence is your present! You show love by being fully present with others.",
-        medium: "You value giving focused attention and creating memories together.",
-        low: "Quality time is nice but not your primary way of giving love."
-    },
-    'Touch': {
-        high: "You're naturally affectionate! Physical touch is how you express your love most comfortably.",
-        medium: "You enjoy appropriate physical affection as a way to connect.",
-        low: "Physical touch isn't your main way of showing love."
-    }
+    'Words': { high: "You naturally encourage others! Your affirming words uplift those around you.", medium: "You enjoy giving compliments and positive feedback when it feels authentic.", low: "Verbal affirmation isn't your go-to way of showing love." },
+    'Acts': { high: "You're a natural helper! Serving others through actions is how you show your love.", medium: "You like helping out and making life easier for those you care about.", low: "Practical help isn't your primary way of expressing love." },
+    'Gifts': { high: "You love giving thoughtful gifts! Finding the perfect present brings you joy.", medium: "You enjoy giving meaningful gifts on special occasions.", low: "Gifts aren't your main way of showing appreciation." },
+    'Time': { high: "Your presence is your present! You show love by being fully present with others.", medium: "You value giving focused attention and creating memories together.", low: "Quality time is nice but not your primary way of giving love." },
+    'Touch': { high: "You're naturally affectionate! Physical touch is how you express your love most comfortably.", medium: "You enjoy appropriate physical affection as a way to connect.", low: "Physical touch isn't your main way of showing love." }
 };
 
 const config = {
@@ -86,9 +46,7 @@ const config = {
         responsive: true,
         maintainAspectRatio: false,
         scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
-        plugins: { 
-            legend: { position: 'bottom', labels: { font: { size: 12 } } } 
-        }
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
     }
 };
 
@@ -331,9 +289,14 @@ function getExpandedData() {
 // 🆕 GENERATE SHAREABLE CODE (BIDIRECTIONAL)
 function generateCode() {
     const myData = getExpandedData();
-    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T1716
-    const dataHash = btoa(String(myData.reduce((a, b) => a + b, 0))).substring(0, 6); // Base64 hash of sum
-    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 1716X7K9P2 (10 chars)
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T2151
+    const dataSum = myData.reduce((a, b) => a + b, 0);
+    const dataHash = btoa(dataSum.toString(36)) // Base36 for shorter, alphanumeric output
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '') // Keep only uppercase letters and numbers
+        .padEnd(6, 'X') // Ensure exactly 6 characters, pad with 'X' if needed
+        .substring(0, 6); // Take first 6 characters
+    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 2151X7K9P2
 
     const codeHTML = `
 <!DOCTYPE html>
@@ -364,6 +327,7 @@ function generateCode() {
     } else {
         alert('Popup blocked. Please allow popups for this site to generate the code.');
     }
+    console.log('Generated Code:', code); // Debug log
 }
 
 // 🆕 RECEIVE AND COMPARE (BIDIRECTIONAL)
@@ -389,7 +353,7 @@ function showCompare() {
     <h2>Enter Compare Code</h2>
     <div class="input-group">
         <label>Enter the code shared with you:</label>
-        <input type="text" id="compareCode" placeholder="e.g., 1716X7K9P2" maxlength="10">
+        <input type="text" id="compareCode" placeholder="e.g., 2151X7K9P2" maxlength="10">
         <button onclick="submitCode()">Submit</button>
         <div id="error">Invalid code. Please try again or generate a new one.</div>
     </div>
@@ -397,7 +361,8 @@ function showCompare() {
     <script>
         function submitCode() {
             const code = document.getElementById('compareCode').value.toUpperCase();
-            if (code.length !== 10 || !/^\d{4}[A-Z]{6}$/.test(code)) {
+            console.log('Entered Code:', code); // Debug log
+            if (code.length !== 10 || !/^\d{4}[A-Z0-9]{6}$/.test(code)) {
                 document.getElementById('error').style.display = 'block';
                 return;
             }
