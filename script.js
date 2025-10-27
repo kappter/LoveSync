@@ -487,12 +487,13 @@ function displayCompare() {
     document.close();
 }
 
-// 🎯 TOGGLE SLIDERS FUNCTION
+// 🎯 TOGGLE SLIDERS FUNCTION (FIXED FOR FIRST CLICK)
 function toggleSliders() {
     const container = document.getElementById('slidersContainer');
     const button = document.querySelector('.toggle-btn');
-    
-    if (container.style.display === 'none' || container.style.display === '') {
+    const isHidden = container.style.display === 'none' || !container.style.display || container.style.display === '';
+
+    if (isHidden) {
         container.style.display = 'flex';
         button.textContent = '📱 Hide Sliders';
     } else {
@@ -501,17 +502,16 @@ function toggleSliders() {
     }
 }
 
-// 🆕 GENERATE SHAREABLE CODE (BIDIRECTIONAL)
+// 🆕 GENERATE SHAREABLE CODE (BIDIRECTIONAL WITH DEBUG)
 function generateCode() {
     const myData = getExpandedData();
-    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T2215
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251027T1352
     const dataSum = myData.reduce((a, b) => a + b, 0);
-    const dataHash = btoa(dataSum.toString(36)) // Base36 for shorter, alphanumeric output
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, '') // Keep only uppercase letters and numbers
-        .padEnd(6, '0') // Ensure exactly 6 characters, pad with '0' if needed
-        .substring(0, 6); // Take first 6 characters
-    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 2215X7K9P0
+    const dataHashBase = dataSum.toString(36).toUpperCase(); // Base36, uppercase
+    const dataHash = (dataHashBase + '000000').substring(0, 6); // Ensure 6 chars, pad with zeros
+    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 1352AB12C0
+    console.log('Generated Data Sum:', dataSum);
+    console.log('Generated Hash Base:', dataHashBase);
     console.log('Generated Code:', code); // Debug log
 
     const codeHTML = `
@@ -544,8 +544,7 @@ function generateCode() {
         alert('Popup blocked. Please allow popups for this site to generate the code.');
     }
 }
-
-// 🆕 RECEIVE AND COMPARE (BIDIRECTIONAL)
+// 🆕 RECEIVE AND COMPARE (BIDIRECTIONAL WITH DEBUG)
 function showCompare() {
     const inputHTML = `
 <!DOCTYPE html>
@@ -568,7 +567,7 @@ function showCompare() {
     <h2>Enter Compare Code</h2>
     <div class="input-group">
         <label>Enter the code shared with you:</label>
-        <input type="text" id="compareCode" placeholder="e.g., 2215X7K9P0" maxlength="10">
+        <input type="text" id="compareCode" placeholder="e.g., 1352AB12C0" maxlength="10">
         <button onclick="submitCode()">Submit</button>
         <div id="error">Invalid code. Please try again or generate a new one.</div>
     </div>
