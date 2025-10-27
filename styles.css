@@ -36,14 +36,15 @@ body {
     transform: translateY(-2px);
 }
 
-/* SLIDERS - HIDDEN ON MOBILE */
+/* Add to existing styles.css */
 .sliders-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: none; /* Start hidden */
+    flex-direction: column;
     gap: 1rem;
     padding: 1rem;
     background: #f8f9fa;
-    border-bottom: 2px solid #3498db;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .slider-row {
