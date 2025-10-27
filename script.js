@@ -501,6 +501,102 @@ function toggleSliders() {
     }
 }
 
+// 🆕 GENERATE SHAREABLE CODE (BIDIRECTIONAL)
+function generateCode() {
+    const myData = getExpandedData();
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').substring(0, 13); // e.g., 20251025T2215
+    const dataSum = myData.reduce((a, b) => a + b, 0);
+    const dataHash = btoa(dataSum.toString(36)) // Base36 for shorter, alphanumeric output
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '') // Keep only uppercase letters and numbers
+        .padEnd(6, '0') // Ensure exactly 6 characters, pad with '0' if needed
+        .substring(0, 6); // Take first 6 characters
+    const code = `${timestamp.substring(8, 12)}${dataHash}`.toUpperCase(); // e.g., 2215X7K9P0
+    console.log('Generated Code:', code); // Debug log
+
+    const codeHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync - Share Your Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; text-align: center; }
+        h2 { color: #3498db; }
+        #codeDisplay { font-size: 1.5rem; font-weight: bold; color: #2ecc71; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px; }
+        button { background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <h2>Share Your Code</h2>
+    <div id="codeDisplay">${code}</div>
+    <p>Share this code with another person to compare your LoveSync results.</p>
+    <button onclick="window.close()">Close</button>
+</body>
+</html>`;
+
+    const newWindow = window.open('', '_blank');
+    if (newWindow && newWindow.document) {
+        newWindow.document.write(codeHTML);
+        newWindow.document.close();
+    } else {
+        alert('Popup blocked. Please allow popups for this site to generate the code.');
+    }
+}
+
+// 🆕 RECEIVE AND COMPARE (BIDIRECTIONAL)
+function showCompare() {
+    const inputHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoveSync - Enter Compare Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; }
+        h2 { color: #3498db; text-align: center; }
+        .input-group { margin: 1rem 0; }
+        label { display: block; margin-bottom: 0.5rem; }
+        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; text-transform: uppercase; }
+        button { background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        #error { color: red; display: none; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h2>Enter Compare Code</h2>
+    <div class="input-group">
+        <label>Enter the code shared with you:</label>
+        <input type="text" id="compareCode" placeholder="e.g., 2215X7K9P0" maxlength="10">
+        <button onclick="submitCode()">Submit</button>
+        <div id="error">Invalid code. Please try again or generate a new one.</div>
+    </div>
+
+    <script>
+        function submitCode() {
+            const code = document.getElementById('compareCode').value.toUpperCase();
+            console.log('Entered Code:', code); // Debug log
+            if (code.length !== 10 || !/^\d{4}[A-Z0-9]{6}$/.test(code)) {
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+            window.location.href = 'compare.html?code=' + encodeURIComponent(code); // Ensure proper URL
+            window.close(); // Close the popup after redirect attempt
+        }
+    </script>
+</body>
+</html>`;
+
+    const inputWindow = window.open('', '_blank');
+    if (inputWindow && inputWindow.document) {
+        inputWindow.document.write(inputHTML);
+        inputWindow.document.close();
+    } else {
+        alert('Popup blocked. Please allow popups for this site to enter the code.');
+    }
+}
+
 // 🆕 MODAL FUNCTIONS
 function showInstructions() {
     const modal = document.getElementById('instructionsModal');
