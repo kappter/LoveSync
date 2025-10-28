@@ -1,5 +1,5 @@
 /* ==============================================================
-   LoveSync – Solo & Couple Mode
+   LoveSync – Therapist-Ready Couple Report
    ============================================================== */
 
 const labels = ['Words', 'Acts', 'Gifts', 'Time', 'Touch'];
@@ -7,19 +7,19 @@ const full = ['Words of Affirmation', 'Acts of Service', 'Receiving Gifts', 'Qua
 const colors = ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c'];
 
 // Observations
-const obsReceive = { /* same as before */ 
-  Words: { high: "You thrive on verbal encouragement!", medium: "Words matter to you.", low: "Verbal praise is nice but not primary." },
-  Acts:  { high: "Helping with tasks feels like love.", medium: "Practical help is appreciated.", low: "Acts are secondary." },
-  Gifts: { high: "Thoughtful gifts speak volumes.", medium: "Gifts warm your heart.", low: "Gifts are pleasant but not essential." },
-  Time:  { high: "Undivided attention is everything.", medium: "Quality time strengthens bonds.", low: "Time together is nice." },
-  Touch: { high: "Physical touch makes you feel secure.", medium: "Touch helps you connect.", low: "Touch is comforting." }
+const obsReceive = {
+  Words: { high: "You feel most loved when your partner says kind, affirming things.", medium: "Words of appreciation help you feel valued.", low: "You don’t need many words to feel loved." },
+  Acts:  { high: "You feel loved when your partner helps with tasks or responsibilities.", medium: "Acts of service make you feel supported.", low: "You’re independent and don’t rely on help to feel loved." },
+  Gifts: { high: "Thoughtful gifts make you feel remembered and cherished.", medium: "Small gifts on special days mean a lot.", low: "Gifts are nice but not your main way of feeling loved." },
+  Time:  { high: "Undivided attention is how you feel most connected.", medium: "Quality time strengthens your bond.", low: "You’re okay with less focused time." },
+  Touch: { high: "Physical affection is essential to feeling loved.", medium: "Touch helps you feel close.", low: "You’re fine with less physical contact." }
 };
 const obsGive = {
-  Words: { high: "You naturally encourage with words.", medium: "You enjoy giving compliments.", low: "Words aren’t your main way." },
-  Acts:  { high: "You show love by doing.", medium: "You like helping out.", low: "Helping isn’t your default." },
-  Gifts: { high: "You love finding the perfect gift.", medium: "You give gifts on special occasions.", low: "Gifts aren’t your style." },
-  Time:  { high: "Your presence is the gift.", medium: "You value shared moments.", low: "Time isn’t your primary expression." },
-  Touch: { high: "You’re naturally affectionate.", medium: "You use touch to connect.", low: "Touch isn’t your go-to." }
+  Words: { high: "You naturally express love through compliments and encouragement.", medium: "You give words of affirmation when it feels right.", low: "You rarely use words to show love." },
+  Acts:  { high: "You show love by doing things for your partner.", medium: "You help out when you can.", low: "You don’t often express love through actions." },
+  Gifts: { high: "You love giving thoughtful, meaningful gifts.", medium: "You give gifts on special occasions.", low: "Gifts aren’t your go-to way of showing love." },
+  Time:  { high: "You express love by being fully present.", medium: "You make time when it matters.", low: "You’re not big on giving focused time." },
+  Touch: { high: "You’re very affectionate and use touch to show love.", medium: "You use appropriate touch to connect.", low: "You’re not very physically expressive." }
 };
 
 let soloChart, chart1, chart2;
@@ -100,7 +100,7 @@ function getObs(key, score, isReceive) {
   return set[key][cat];
 }
 
-// Solo Report
+// Solo Report (unchanged)
 function showSoloReport() {
   const data = getData('solo');
   const cards = (isReceive) => labels.map((l, i) => {
@@ -125,9 +125,11 @@ function showSoloReport() {
   rep.style.display = 'block';
 }
 
-// Couple Report
+// === COUPLE REPORT – THERAPIST-READY ===
 function showCoupleReport() {
   const p1 = getData('p1'), p2 = getData('p2');
+
+  // Helper: Language cards
   const cards = (data, isReceive) => labels.map((l, i) => {
     const s = data[i];
     const o = getObs(l, s, isReceive);
@@ -135,31 +137,92 @@ function showCoupleReport() {
     return `<div class="language-card ${cls}"><strong>${full[i]}</strong> – ${s}/10<br><em>${o}</em></div>`;
   }).join('');
 
+  // 1. Love Gap (Biggest Mismatch)
   const loveGap = () => {
     const gaps = labels.map((_, i) => Math.abs(p1.give[i] - p2.rec[i]));
     const max = Math.max(...gaps);
     const idx = gaps.indexOf(max);
-    return max > 3 ? `Mismatch: <strong>${full[idx]}</strong> – P1 gives ${p1.give[idx]}, P2 receives ${p2.rec[idx]}` : 'Balanced!';
+    return max > 3
+      ? `<strong>Love Gap:</strong> <em>${full[idx]}</em> – P1 gives ${p1.give[idx]}, but P2 only receives ${p2.rec[idx]}. This is a <strong>high-risk mismatch</strong>.`
+      : `<strong>Love Gap:</strong> Giving and receiving are well-aligned across all languages.`;
   };
+
+  // 2. Top Mutual Strength
   const topMatch = () => {
     const matches = labels.map((_, i) => Math.min(p1.give[i], p2.rec[i]));
     const best = Math.max(...matches);
     const idx = matches.indexOf(best);
-    return `Mutual strength: <strong>${full[idx]}</strong> (${best}/10)`;
+    return `<strong>Mutual Strength:</strong> <em>${full[idx]}</em> (${best}/10) – This is your strongest shared language.`;
+  };
+
+  // 3. Points of Contention (Low Give + High Receive)
+  const contention = () => {
+    const issues = [];
+    labels.forEach((l, i) => {
+      if (p1.give[i] <= 3 && p2.rec[i] >= 7) {
+        issues.push(`P2 <strong>needs</strong> ${full[i]} (${p2.rec[i]}/10), but P1 only gives ${p1.give[i]}/10.`);
+      }
+      if (p2.give[i] <= 3 && p1.rec[i] >= 7) {
+        issues.push(`P1 <strong>needs</strong> ${full[i]} (${p1.rec[i]}/10), but P2 only gives ${p2.give[i]}/10.`);
+      }
+    });
+    return issues.length > 0
+      ? `<strong>Potential Conflict Areas:</strong><ul><li>${issues.join('</li><li>')}</li></ul>`
+      : `<em>No major unmet needs detected.</em>`;
+  };
+
+  // 4. Blind Spots (High Give, Low Receive)
+  const blindSpots = () => {
+    const spots = [];
+    labels.forEach((l, i) => {
+      if (p1.give[i] >= 7 && p2.rec[i] <= 3) {
+        spots.push(`P1 gives a lot of ${full[i]}, but P2 doesn’t value it.`);
+      }
+      if (p2.give[i] >= 7 && p1.rec[i] <= 3) {
+        spots.push(`P2 gives a lot of ${full[i]}, but P1 doesn’t value it.`);
+      }
+    });
+    return spots.length > 0
+      ? `<strong>Blind Spots:</strong><ul><li>${spots.join('</li><li>')}</li></ul>`
+      : `<em>No wasted effort detected.</em>`;
+  };
+
+  // 5. Therapist Prompts
+  const prompts = () => {
+    const list = [
+      `“When was the last time you felt truly seen by your partner?”`,
+      `“What’s one small thing your partner does that makes you feel loved?”`,
+      `“Is there a love language you wish your partner understood better?”`,
+      `“How do you usually respond when your partner tries to show love in their way?”`
+    ];
+    return `<strong>Discussion Starters:</strong><ul><li>${list.join('</li><li>')}</li></ul>`;
   };
 
   const html = `
-    <h2 style="text-align:center">Couple Comparison Report</h2>
+    <h2 style="text-align:center">Couple Love Language Report</h2>
+    <p style="text-align:center;font-style:italic;color:#7f8c8d">Use this in therapy or date night to deepen connection.</p>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
-      <div><h3>P1 Receiving</h3>${cards(p1.rec, true)}<h3>P1 Giving</h3>${cards(p1.give, false)}</div>
-      <div><h3>P2 Receiving</h3>${cards(p2.rec, true)}<h3>P2 Giving</h3>${cards(p2.give, false)}</div>
+      <div>
+        <h3>Person 1 – Receiving</h3>${cards(p1.rec, true)}
+        <h3>Person 1 – Giving</h3>${cards(p1.give, false)}
+      </div>
+      <div>
+        <h3>Person 2 – Receiving</h3>${cards(p2.rec, true)}
+        <h3>Person 2 – Giving</h3>${cards(p2.give, false)}
+      </div>
     </div>
-    <div style="margin-top:1.5rem;padding:1rem;background:#fff3cd;border-radius:8px">
+
+    <div style="margin-top:2rem;padding:1.5rem;background:#fff3cd;border-radius:8px;font-size:0.95rem">
       <p class="love-gap">${loveGap()}</p>
       <p class="top-match">${topMatch()}</p>
+      <div style="margin-top:1rem">${contention()}</div>
+      <div style="margin-top:1rem">${blindSpots()}</div>
+      <div style="margin-top:1.5rem">${prompts()}</div>
     </div>
+
     <div style="text-align:center;margin-top:1.5rem">
-      <button class="btn" onclick="document.getElementById('report').style.display='none'">Close</button>
+      <button class="btn" onclick="document.getElementById('report').style.display='none'">Close Report</button>
     </div>`;
 
   const rep = document.getElementById('report');
