@@ -1,111 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveSync ❤️</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>LoveSync – Instant 2-Person Compare</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <!-- 🎯 TOGGLE BUTTON -->
-        <button class="toggle-btn" onclick="toggleSliders()">📱 Show Sliders</button>
 
-        <!-- SLIDERS - HIDDEN ON MOBILE -->
-        <div class="sliders-container" id="slidersContainer">
-            <div class="slider-row">
-                <h4 style="color:#3498db; text-align:center; margin:0.5rem 0;">🎯 RECEIVE LOVE</h4>
-                <div class="slider-group">
-                    <label>Words of Affirmation</label>
-                    <input type="range" id="rec_words" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_words">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Acts of Service</label>
-                    <input type="range" id="rec_acts" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_acts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Receiving Gifts</label>
-                    <input type="range" id="rec_gifts" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_gifts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Quality Time</label>
-                    <input type="range" id="rec_time" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_time">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Physical Touch</label>
-                    <input type="range" id="rec_touch" min="1" max="10" value="5">
-                    <span class="value" id="val_rec_touch">5</span>
-                </div>
-            </div>
-            <div class="slider-row">
-                <h4 style="color:#2ecc71; text-align:center; margin:0.5rem 0;">🎁 GIVE LOVE</h4>
-                <div class="slider-group">
-                    <label>Words of Affirmation</label>
-                    <input type="range" id="give_words" min="1" max="10" value="5">
-                    <span class="value" id="val_give_words">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Acts of Service</label>
-                    <input type="range" id="give_acts" min="1" max="10" value="5">
-                    <span class="value" id="val_give_acts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Receiving Gifts</label>
-                    <input type="range" id="give_gifts" min="1" max="10" value="5">
-                    <span class="value" id="val_give_gifts">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Quality Time</label>
-                    <input type="range" id="give_time" min="1" max="10" value="5">
-                    <span class="value" id="val_give_time">5</span>
-                </div>
-                <div class="slider-group">
-                    <label>Physical Touch</label>
-                    <input type="range" id="give_touch" min="1" max="10" value="5">
-                    <span class="value" id="val_give_touch">5</span>
-                </div>
-            </div>
-        </div>
+  <h1>LoveSync – Instant 2-Person Comparison</h1>
 
-        <!-- BIG CHART -->
-        <div class="chart-section">
-            <canvas id="loveChart"></canvas>
-        </div>
+  <div class="toggle-container">
+    <button class="toggle-btn" onclick="toggleSliders()">Show Sliders</button>
+  </div>
 
-        <!-- SUMMARY -->
-        <div id="description"></div>
-
-        <!-- BUTTONS -->
-        <div class="buttons">
-            <button class="compare-btn" onclick="showCompare()">📥 Receive Code</button>
-            <button class="generate-btn" onclick="generateCode()">🔑 Generate Code</button>
-            <button class="generate-btn" onclick="generateReport()">📄 Report</button>
-            <button class="info-btn" onclick="showInstructions()">ℹ️ Instructions</button>
-        </div>
-
-        <!-- MODAL FOR INSTRUCTIONS -->
-        <div id="instructionsModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeInstructions()">&times;</span>
-                <h2>LoveSync Instructions</h2>
-                <p><strong>How to Use LoveSync:</strong></p>
-                <ol>
-                    <li>Adjust the sliders to reflect how you <strong>receive</strong> and <strong>give</strong> love across five languages: Words of Affirmation, Acts of Service, Receiving Gifts, Quality Time, and Physical Touch (1-10 scale).</li>
-                    <li>Click <strong>📱 Show Sliders</strong> on mobile to view or hide the sliders.</li>
-                    <li>To compare with someone, one person clicks <strong>🔑 Generate Code</strong> to create a unique share code based on their settings.</li>
-                    <li>The other person clicks <strong>📥 Receive Code</strong>, enters the shared code, and views a detailed comparison.</li>
-                    <li>Click <strong>📄 Report</strong> to generate a printable summary of your love language profile.</li>
-                </ol>
-                <p><em>Enjoy deeper connections with LoveSync! ❤️</em></p>
-            </div>
-        </div>
+  <div id="slidersContainer" class="sliders-grid">
+    <!-- PERSON 1 -->
+    <div class="panel">
+      <h2>Person 1</h2>
+      <div id="p1-sliders"></div>
+      <div class="chart-box"><canvas id="chart1"></canvas></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- PERSON 2 -->
+    <div class="panel">
+      <h2>Person 2</h2>
+      <div id="p2-sliders"></div>
+      <div class="chart-box"><canvas id="chart2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="btn-center">
+    <button class="btn" onclick="showReport()">Show Comparison Report</button>
+  </div>
+
+  <div id="report" class="report"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
