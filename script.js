@@ -1,14 +1,13 @@
 /* ==============================================================
-   LoveSync – Instant 2-Person Compare
-   Fresh, clean, working version
+   LoveSync – Solo & Couple Mode
    ============================================================== */
 
 const labels = ['Words', 'Acts', 'Gifts', 'Time', 'Touch'];
 const full = ['Words of Affirmation', 'Acts of Service', 'Receiving Gifts', 'Quality Time', 'Physical Touch'];
 const colors = ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e74c3c'];
 
-// Observation text
-const obsReceive = {
+// Observations
+const obsReceive = { /* same as before */ 
   Words: { high: "You thrive on verbal encouragement!", medium: "Words matter to you.", low: "Verbal praise is nice but not primary." },
   Acts:  { high: "Helping with tasks feels like love.", medium: "Practical help is appreciated.", low: "Acts are secondary." },
   Gifts: { high: "Thoughtful gifts speak volumes.", medium: "Gifts warm your heart.", low: "Gifts are pleasant but not essential." },
@@ -22,6 +21,8 @@ const obsGive = {
   Time:  { high: "Your presence is the gift.", medium: "You value shared moments.", low: "Time isn’t your primary expression." },
   Touch: { high: "You’re naturally affectionate.", medium: "You use touch to connect.", low: "Touch isn’t your go-to." }
 };
+
+let soloChart, chart1, chart2;
 
 // Build sliders
 function buildSliders(containerId, prefix) {
@@ -40,8 +41,7 @@ function buildSliders(containerId, prefix) {
   `).join('');
 }
 
-// Chart creation
-let chart1, chart2;
+// Create chart
 function createChart(canvasId, rec, give) {
   return new Chart(document.getElementById(canvasId), {
     type: 'radar',
@@ -61,28 +61,36 @@ function createChart(canvasId, rec, give) {
   });
 }
 
-// Read data
+// Get data
 function getData(prefix) {
   const rec = labels.map(l => +document.getElementById(`${prefix}_rec_${l.toLowerCase()}`).value);
   const give = labels.map(l => +document.getElementById(`${prefix}_give_${l.toLowerCase()}`).value);
   return { rec, give };
 }
 
-// Update charts + value display
+// Update charts
 function updateCharts() {
-  const p1 = getData('p1'), p2 = getData('p2');
-
-  // Update value labels
+  if (document.getElementById('solo-container').style.display !== 'none') {
+    const data = getData('solo');
+    soloChart.data.datasets[0].data = data.rec;
+    soloChart.data.datasets[1].data = data.give;
+    soloChart.update('none');
+    updateValues('solo');
+  } else {
+    const p1 = getData('p1'), p2 = getData('p2');
+    chart1.data.datasets[0].data = p1.rec; chart1.data.datasets[1].data = p1.give; chart1.update('none');
+    chart2.data.datasets[0].data = p2.rec; chart2.data.datasets[1].data = p2.give; chart2.update('none');
+    updateValues('p1'); updateValues('p2');
+  }
+}
+function updateValues(prefix) {
   labels.forEach(l => {
-    document.getElementById(`val_p1_rec_${l.toLowerCase()}`).textContent = p1.rec[labels.indexOf(l)];
-    document.getElementById(`val_p1_give_${l.toLowerCase()}`).textContent = p1.give[labels.indexOf(l)];
-    document.getElementById(`val_p2_rec_${l.toLowerCase()}`).textContent = p2.rec[labels.indexOf(l)];
-    document.getElementById(`val_p2_give_${l.toLowerCase()}`).textContent = p2.give[labels.indexOf(l)];
+    const idx = labels.indexOf(l);
+    const rec = document.getElementById(`${prefix}_rec_${l.toLowerCase()}`).value;
+    const give = document.getElementById(`${prefix}_give_${l.toLowerCase()}`).value;
+    document.getElementById(`val_${prefix}_rec_${l.toLowerCase()}`).textContent = rec;
+    document.getElementById(`val_${prefix}_give_${l.toLowerCase()}`).textContent = give;
   });
-
-  // Update charts
-  chart1.data.datasets[0].data = p1.rec; chart1.data.datasets[1].data = p1.give; chart1.update('none');
-  chart2.data.datasets[0].data = p2.rec; chart2.data.datasets[1].data = p2.give; chart2.update('none');
 }
 
 // Observation
@@ -92,49 +100,24 @@ function getObs(key, score, isReceive) {
   return set[key][cat];
 }
 
-// Love gap & top match
-function loveGap(p1rec, p1give, p2rec, p2give) {
-  const gaps = labels.map((_, i) => Math.abs(p1give[i] - p2rec[i]));
-  const max = Math.max(...gaps);
-  const idx = gaps.indexOf(max);
-  return max > 3 ? `Big mismatch: <strong>${full[idx]}</strong> – P1 gives ${p1give[idx]} but P2 receives ${p2rec[idx]}` : 'Giving & receiving are balanced!';
-}
-function topMatch(p1rec, p1give, p2rec, p2give) {
-  const matches = labels.map((_, i) => Math.min(p1give[i], p2rec[i]));
-  const best = Math.max(...matches);
-  const idx = matches.indexOf(best);
-  return `Strongest mutual language: <strong>${full[idx]}</strong> (${best}/10)`;
-}
-
-// Show report
-function showReport() {
-  const p1 = getData('p1'), p2 = getData('p2');
-
-  const cards = (data, isReceive, person) => labels.map((l, i) => {
-    const s = data[i];
+// Solo Report
+function showSoloReport() {
+  const data = getData('solo');
+  const cards = (isReceive) => labels.map((l, i) => {
+    const s = isReceive ? data.rec[i] : data.give[i];
     const o = getObs(l, s, isReceive);
     const cls = s >= 7 ? 'score-high' : s >= 4 ? 'score-medium' : 'score-low';
     return `<div class="language-card ${cls}"><strong>${full[i]}</strong> – ${s}/10<br><em>${o}</em></div>`;
   }).join('');
 
   const html = `
-    <h2 style="text-align:center">Comparison Report</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
-      <div>
-        <h3>Person 1 – Receiving</h3>${cards(p1.rec, true)}
-        <h3>Person 1 – Giving</h3>${cards(p1.give, false)}
-      </div>
-      <div>
-        <h3>Person 2 – Receiving</h3>${cards(p2.rec, true)}
-        <h3>Person 2 – Giving</h3>${cards(p2.give, false)}
-      </div>
-    </div>
-    <div style="margin-top:2rem;padding:1rem;background:#fff3cd;border-radius:8px">
-      <p class="love-gap">${loveGap(p1.rec, p1.give, p2.rec, p2.give)}</p>
-      <p class="top-match">${topMatch(p1.rec, p1.give, p2.rec, p2.give)}</p>
+    <h2 style="text-align:center">Your Love Profile Report</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <div><h3>Receiving</h3>${cards(true)}</div>
+      <div><h3>Giving</h3>${cards(false)}</div>
     </div>
     <div style="text-align:center;margin-top:1.5rem">
-      <button class="btn" onclick="document.getElementById('report').style.display='none'">Close Report</button>
+      <button class="btn" onclick="document.getElementById('report').style.display='none'">Close</button>
     </div>`;
 
   const rep = document.getElementById('report');
@@ -142,7 +125,73 @@ function showReport() {
   rep.style.display = 'block';
 }
 
-// Toggle sliders
+// Couple Report
+function showCoupleReport() {
+  const p1 = getData('p1'), p2 = getData('p2');
+  const cards = (data, isReceive) => labels.map((l, i) => {
+    const s = data[i];
+    const o = getObs(l, s, isReceive);
+    const cls = s >= 7 ? 'score-high' : s >= 4 ? 'score-medium' : 'score-low';
+    return `<div class="language-card ${cls}"><strong>${full[i]}</strong> – ${s}/10<br><em>${o}</em></div>`;
+  }).join('');
+
+  const loveGap = () => {
+    const gaps = labels.map((_, i) => Math.abs(p1.give[i] - p2.rec[i]));
+    const max = Math.max(...gaps);
+    const idx = gaps.indexOf(max);
+    return max > 3 ? `Mismatch: <strong>${full[idx]}</strong> – P1 gives ${p1.give[idx]}, P2 receives ${p2.rec[idx]}` : 'Balanced!';
+  };
+  const topMatch = () => {
+    const matches = labels.map((_, i) => Math.min(p1.give[i], p2.rec[i]));
+    const best = Math.max(...matches);
+    const idx = matches.indexOf(best);
+    return `Mutual strength: <strong>${full[idx]}</strong> (${best}/10)`;
+  };
+
+  const html = `
+    <h2 style="text-align:center">Couple Comparison Report</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <div><h3>P1 Receiving</h3>${cards(p1.rec, true)}<h3>P1 Giving</h3>${cards(p1.give, false)}</div>
+      <div><h3>P2 Receiving</h3>${cards(p2.rec, true)}<h3>P2 Giving</h3>${cards(p2.give, false)}</div>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem;background:#fff3cd;border-radius:8px">
+      <p class="love-gap">${loveGap()}</p>
+      <p class="top-match">${topMatch()}</p>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <button class="btn" onclick="document.getElementById('report').style.display='none'">Close</button>
+    </div>`;
+
+  const rep = document.getElementById('report');
+  rep.innerHTML = html;
+  rep.style.display = 'block';
+}
+
+// Mode Switch
+function setMode(mode) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+
+  document.getElementById('solo-container').style.display = mode === 'solo' ? 'block' : 'none';
+  document.getElementById('couple-container').style.display = mode === 'couple' ? 'block' : 'none';
+  document.getElementById('page-title').textContent = `LoveSync – ${mode === 'solo' ? 'Solo' : 'Couple'} Mode`;
+
+  if (mode === 'solo' && !soloChart) {
+    buildSliders('solo-sliders', 'solo');
+    soloChart = createChart('solo-chart', [5,5,5,5,5], [5,5,5,5,5]);
+    updateCharts();
+  } else if (mode === 'couple') {
+    if (!chart1) {
+      buildSliders('p1-sliders', 'p1');
+      buildSliders('p2-sliders', 'p2');
+      chart1 = createChart('chart1', [5,5,5,5,5], [5,5,5,5,5]);
+      chart2 = createChart('chart2', [5,5,5,5,5], [5,5,5,5,5]);
+      updateCharts();
+    }
+  }
+}
+
+// Toggle sliders (couple mode)
 function toggleSliders() {
   const cont = document.getElementById('slidersContainer');
   const btn = document.querySelector('.toggle-btn');
@@ -151,11 +200,7 @@ function toggleSliders() {
   btn.textContent = isHidden ? 'Hide Sliders' : 'Show Sliders';
 }
 
-// Initialize
+// Init
 document.addEventListener('DOMContentLoaded', () => {
-  buildSliders('p1-sliders', 'p1');
-  buildSliders('p2-sliders', 'p2');
-  chart1 = createChart('chart1', [5,5,5,5,5], [5,5,5,5,5]);
-  chart2 = createChart('chart2', [5,5,5,5,5], [5,5,5,5,5]);
-  updateCharts();
+  setMode('solo'); // default
 });
