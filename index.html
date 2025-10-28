@@ -3,38 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LoveSync – Mobile-Friendly</title>
+  <title>LoveSync – Solo or Couple</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <h1>LoveSync – Instant 2-Person Compare</h1>
-
-  <div class="toggle-container">
-    <button class="toggle-btn" onclick="toggleSliders()">Show Sliders</button>
+  <!-- MODE SWITCH -->
+  <div class="mode-switch">
+    <button class="mode-btn active" data-mode="solo" onclick="setMode('solo')">Solo Mode</button>
+    <button class="mode-btn" data-mode="couple" onclick="setMode('couple')">Couple Mode</button>
   </div>
 
-  <div id="slidersContainer" class="sliders-grid">
-    <!-- PERSON 1 -->
-    <div class="panel">
-      <h2>Person 1</h2>
-      <div id="p1-sliders"></div>
-      <div class="chart-box"><canvas id="chart1"></canvas></div>
-    </div>
+  <h1 id="page-title">LoveSync – Solo Mode</h1>
 
-    <!-- PERSON 2 -->
+  <!-- SOLO MODE -->
+  <div id="solo-container" class="mode-container">
     <div class="panel">
-      <h2>Person 2</h2>
-      <div id="p2-sliders"></div>
-      <div class="chart-box"><canvas id="chart2"></canvas></div>
+      <h2>Your Love Profile</h2>
+      <div id="solo-sliders"></div>
+      <div class="chart-box"><canvas id="solo-chart"></canvas></div>
+      <div class="btn-center">
+        <button class="btn" onclick="showSoloReport()">Generate My Report</button>
+      </div>
     </div>
   </div>
 
-  <div class="btn-center">
-    <button class="btn" onclick="showReport()">Show Comparison Report</button>
+  <!-- COUPLE MODE -->
+  <div id="couple-container" class="mode-container" style="display:none">
+    <div class="toggle-container">
+      <button class="toggle-btn" onclick="toggleSliders()">Show Sliders</button>
+    </div>
+    <div id="slidersContainer" class="sliders-grid">
+      <div class="panel">
+        <h2>Person 1</h2>
+        <div id="p1-sliders"></div>
+        <div class="chart-box"><canvas id="chart1"></canvas></div>
+      </div>
+      <div class="panel">
+        <h2>Person 2</h2>
+        <div id="p2-sliders"></div>
+        <div class="chart-box"><canvas id="chart2"></canvas></div>
+      </div>
+    </div>
+    <div class="btn-center">
+      <button class="btn" onclick="showCoupleReport()">Show Comparison Report</button>
+    </div>
   </div>
 
+  <!-- REPORT (shared) -->
   <div id="report" class="report"></div>
 
   <script src="script.js"></script>
