@@ -1,54 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LoveSync – Solo or Couple</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LoveSync Solo or Couple</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
   <!-- MODE SWITCH -->
-  <div class="mode-switch">
-    <button class="mode-btn active" data-mode="solo" onclick="setMode('solo')">Solo Mode</button>
-    <button class="mode-btn" data-mode="couple" onclick="setMode('couple')">Couple Mode</button>
+  <div class="mode-switch" role="tablist" aria-label="Switch between Solo and Couple Modes">
+    <button class="mode-btn active" data-mode="solo" onclick="setMode('solo')" role="tab" aria-selected="true" tabindex="0">Solo Mode</button>
+    <button class="mode-btn" data-mode="couple" onclick="setMode('couple')" role="tab" aria-selected="false" tabindex="-1">Couple Mode</button>
   </div>
 
   <!-- DARK MODE TOGGLE -->
   <div class="dark-mode-toggle">
-    <button id="darkModeBtn" onclick="toggleDarkMode()">Dark Mode</button>
+    <button id="darkModeBtn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">Dark Mode</button>
   </div>
 
-  <h1 id="page-title">LoveSync – Solo Mode</h1>
+  <h1 id="page-title">LoveSync Solo Mode</h1>
+
+  <!-- FIRST TIME ONBOARDING OVERLAY -->
+  <div id="onboarding-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div class="onboarding-content panel">
+      <h2 id="onboarding-title">Welcome to LoveSync</h2>
+      <p>Use the sliders to quickly rate your love language preferences. The radar chart updates instantly.</p>
+      <p>Generate your personalized report to explore reflections and discussion points.</p>
+      <button class="btn" onclick="closeOnboarding()">Get Started</button>
+    </div>
+  </div>
 
   <!-- SOLO MODE -->
   <div id="solo-container" class="mode-container">
     <div class="panel">
       <h2>Your Love Profile</h2>
-      <div id="solo-sliders"></div>
-      <div class="chart-box"><canvas id="solo-chart"></canvas></div>
-      <div class="btn-center">
-        <button class="btn" onclick="showSoloReport()">Generate My Report</button>
+      <div id="solo-sliders" class="sliders-container" aria-label="Love language sliders"></div>
+      <div class="chart-box">
+        <canvas id="solo-chart" aria-label="Radar chart of your love languages" role="img"></canvas>
       </div>
+      <div class="btn-center">
+        <button class="btn" onclick="showSoloReport()" aria-describedby="report-instruction">Generate My Report</button>
+      </div>
+      <p id="report-instruction" class="visually-hidden">Press this button to generate your personalized love language report</p>
     </div>
   </div>
 
   <!-- COUPLE MODE -->
-  <div id="couple-container" class="mode-container" style="display:none">
+  <div id="couple-container" class="mode-container" style="display:none;">
     <div class="toggle-container">
       <button class="toggle-btn" onclick="toggleSliders()">Show Sliders</button>
     </div>
-    <div id="slidersContainer" class="sliders-grid">
+    <div id="slidersContainer" class="sliders-grid" style="display:none;">
       <div class="panel">
         <h2>Person 1</h2>
-        <div id="p1-sliders"></div>
-        <div class="chart-box"><canvas id="chart1"></canvas></div>
+        <div id="p1-sliders" class="sliders-container" aria-label="Person 1 love language sliders"></div>
+        <div class="chart-box">
+          <canvas id="chart1" aria-label="Person 1 love language radar chart" role="img"></canvas>
+        </div>
       </div>
       <div class="panel">
         <h2>Person 2</h2>
-        <div id="p2-sliders"></div>
-        <div class="chart-box"><canvas id="chart2"></canvas></div>
+        <div id="p2-sliders" class="sliders-container" aria-label="Person 2 love language sliders"></div>
+        <div class="chart-box">
+          <canvas id="chart2" aria-label="Person 2 love language radar chart" role="img"></canvas>
+        </div>
       </div>
     </div>
     <div class="btn-center">
@@ -57,7 +73,7 @@
   </div>
 
   <!-- REPORT -->
-  <div id="report" class="report"></div>
+  <div id="report" class="report" role="region" aria-live="polite" aria-atomic="true" style="display:none;" tabindex="-1"></div>
 
   <script src="script.js"></script>
 </body>
