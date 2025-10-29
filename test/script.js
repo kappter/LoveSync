@@ -13,60 +13,48 @@ const partnerBData = LABELS.map(() => ({ rec: DEFAULT, give: DEFAULT }));
 
 let mode = "solo";
 let activePartner = "A";
+let darkMode = false;
 
 const soloBtn = document.getElementById("soloBtn");
 const coupleBtn = document.getElementById("coupleBtn");
 const soloSection = document.getElementById("soloSection");
 const coupleSection = document.getElementById("coupleSection");
 const reportSection = document.getElementById("reportSection");
-
+const reportContent = document.getElementById("reportContent");
+const darkModeBtn = document.getElementById("darkModeBtn");
 const partnerABtn = document.getElementById("partnerABtn");
 const partnerBBtn = document.getElementById("partnerBBtn");
 
-// Initialize
+// --- Setup ---
 createSliders("soloSliders", soloData, "solo");
 createSliders("coupleSliders", partnerAData, "A");
 updateCharts();
 
 // --- Mode switching ---
-soloBtn.addEventListener("click", () => {
-  mode = "solo";
-  toggleMode();
-});
+soloBtn.onclick = () => switchMode("solo");
+coupleBtn.onclick = () => switchMode("couple");
+partnerABtn.onclick = () => switchPartner("A");
+partnerBBtn.onclick = () => switchPartner("B");
 
-coupleBtn.addEventListener("click", () => {
-  mode = "couple";
-  toggleMode();
-});
-
-partnerABtn.addEventListener("click", () => {
-  activePartner = "A";
-  partnerABtn.classList.add("active");
-  partnerBBtn.classList.remove("active");
-  createSliders("coupleSliders", partnerAData, "A");
-  updateCharts();
-});
-
-partnerBBtn.addEventListener("click", () => {
-  activePartner = "B";
-  partnerBBtn.classList.add("active");
-  partnerABtn.classList.remove("active");
-  createSliders("coupleSliders", partnerBData, "B");
-  updateCharts();
-});
-
-function toggleMode() {
+function switchMode(m) {
+  mode = m;
   if (mode === "solo") {
     soloSection.classList.remove("hidden");
     coupleSection.classList.add("hidden");
-    soloBtn.classList.add("active");
-    coupleBtn.classList.remove("active");
   } else {
     coupleSection.classList.remove("hidden");
     soloSection.classList.add("hidden");
-    coupleBtn.classList.add("active");
-    soloBtn.classList.remove("active");
   }
+  soloBtn.classList.toggle("active", mode === "solo");
+  coupleBtn.classList.toggle("active", mode === "couple");
+  updateCharts();
+}
+
+function switchPartner(p) {
+  activePartner = p;
+  partnerABtn.classList.toggle("active", p === "A");
+  partnerBBtn.classList.toggle("active", p === "B");
+  createSliders("coupleSliders", p === "A" ? partnerAData : partnerBData, p);
   updateCharts();
 }
 
@@ -143,14 +131,12 @@ function updateChart(canvasId, data, refSetter) {
 }
 
 // --- Report generation ---
-document.getElementById("soloReportBtn").addEventListener("click", () => generateReport(soloData));
-document.getElementById("coupleReportBtn").addEventListener("click", () => {
-  generateReport([...partnerAData, ...partnerBData], true);
-});
+document.getElementById("soloReportBtn").onclick = () => generateReport(soloData);
+document.getElementById("coupleReportBtn").onclick = () => generateReport([...partnerAData, ...partnerBData], true);
+document.getElementById("closeReport").onclick = () => reportSection.classList.add("hidden");
 
 function generateReport(data, isCouple = false) {
-  const report = document.getElementById("reportSection");
-  report.classList.remove("hidden");
+  reportSection.classList.remove("hidden");
 
   let html = `<h2>${isCouple ? "Couple Report" : "Solo Report"}</h2>`;
   html += `<p>${new Date().toLocaleString()}</p>`;
@@ -163,10 +149,33 @@ function generateReport(data, isCouple = false) {
     html += `<li>Top strength: ${getTopLabel(data, "give")}</li>`;
   }
   html += `</ul>`;
-  report.innerHTML = html;
+  reportContent.innerHTML = html;
 }
 
 function getTopLabel(arr, key) {
   const maxIndex = arr.reduce((acc, cur, i) => (cur[key] > arr[acc][key] ? i : acc), 0);
   return `${LABELS[maxIndex]} (${arr[maxIndex][key]})`;
 }
+
+// --- Dark mode ---
+darkModeBtn.onclick = () => {
+  darkMode = !darkMode;
+  document.body.classList.toggle("dark", darkMode);
+  darkModeBtn.textContent = darkMode ? "☀️ Light Mode" : "🌙 Dark Mode";
+};
+
+// --- Export PDF ---
+document.getElementById("exportBtn").onclick = async () => {
+  const element = document.getElementById("reportSection");
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jspdf.jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a4"
+  });
+  const width = pdf.internal.pageSize.getWidth();
+  const ratio = width / canvas.width;
+  pdf.addImage(imgData, "PNG", 0, 0, width, canvas.height * ratio);
+  pdf.save(`LoveSync_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+};
