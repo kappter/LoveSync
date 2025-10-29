@@ -68,6 +68,41 @@ body.dark #darkModeBtn {
 body.dark #darkModeBtn:hover {
   background: #2980b9;
 }
+.report-section {
+  border-radius: 10px;
+  margin: 1rem 0;
+  padding: 1rem 1.2rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 1.05rem;
+}
+.warning-section {
+  background: linear-gradient(90deg, #fff3cd 60%, #ffe0e0 100%);
+  color: #b35f05;
+  border-left: 8px solid #e67e22;
+}
+.good-news-section {
+  background: linear-gradient(90deg, #eafcec 60%, #bbe3cc 100%);
+  color: #218c54;
+  border-left: 8px solid #2ecc71;
+}
+.praise-section {
+  background: linear-gradient(90deg, #e1eaff 60%, #f8fcfa 100%);
+  color: #2460af;
+  border-left: 8px solid #5dade2;
+}
+.insight-section {
+  background: linear-gradient(90deg, #fbeee6 60%, #f2cdcd 100%);
+  color: #4e3a28;
+  border-left: 8px solid #c97f63;
+}
+.report-icon {
+  font-size: 2.1rem;
+  line-height: 1;
+  margin-right: 0.7rem;
+}
 
 /* Mode Switch */
 .mode-switch {
