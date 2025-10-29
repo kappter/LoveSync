@@ -6,6 +6,8 @@
   <title>LoveSync</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <header>
@@ -14,6 +16,9 @@
       <button id="soloBtn" class="active">Solo</button>
       <button id="coupleBtn">Couple</button>
     </div>
+    <div class="dark-toggle">
+      <button id="darkModeBtn">🌙 Dark Mode</button>
+    </div>
   </header>
 
   <main>
@@ -21,7 +26,7 @@
       <h2>Your Love Profile</h2>
       <div id="soloSliders"></div>
       <canvas id="soloChart"></canvas>
-      <button id="soloReportBtn">Generate Report</button>
+      <button id="soloReportBtn" class="primary-btn">Generate Report</button>
     </section>
 
     <section id="coupleSection" class="panel hidden">
@@ -31,10 +36,16 @@
       </div>
       <div id="coupleSliders"></div>
       <canvas id="coupleChart"></canvas>
-      <button id="coupleReportBtn">Generate Report</button>
+      <button id="coupleReportBtn" class="primary-btn">Generate Report</button>
     </section>
 
-    <section id="reportSection" class="report hidden"></section>
+    <section id="reportSection" class="report hidden">
+      <div class="report-actions">
+        <button id="exportBtn" class="primary-btn">📄 Export PDF</button>
+        <button id="closeReport" class="secondary-btn">✖ Close</button>
+      </div>
+      <div id="reportContent"></div>
+    </section>
   </main>
 
   <footer>
