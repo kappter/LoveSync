@@ -71,6 +71,156 @@ const obsGive = {
     low: "You're not very physically expressive.",
   },
 };
+// Positive affirmations, color codes for praise and warnings
+const praiseAffirmations = [
+  "Your participation in this session shows hope and commitment.",
+  "You both share the value of growth—which is a foundation for healing.",
+  "Even small steps toward understanding are worth celebrating.",
+  "Acknowledging each other's efforts can open doors to reconnection.",
+  "Gratitude and appreciation can transform challenge into opportunity."
+];
+
+// Randomly choose a praise to display
+function getPraise() {
+  const idx = Math.floor(Math.random() * praiseAffirmations.length);
+  return praiseAffirmations[idx];
+}
+
+// Colorful warning and praise message blocks
+function buildGraphWarnings(p1, p2) {
+  const gaps = labels.map((l, i) => Math.abs(p1.give[i] - p2.rec[i]));
+  const maxGap = Math.max(...gaps);
+  const maxIndex = gaps.indexOf(maxGap);
+
+  let warningHtml = "";
+  if (maxGap >= 3) {
+    warningHtml = `
+    <div class="report-section warning-section">
+      <div class="report-icon" aria-hidden="true">⚠️</div>
+      <strong>Potential Love Gap:</strong>
+      <span>There is a strong mismatch in <em>${full[maxIndex]}</em> (gap of ${maxGap}). This can sometimes lead to misunderstandings or unmet needs. <br />
+      <b>Therapist prompt:</b> <i>How do you both feel when needs go unmet in this area? What has worked in the past to bridge this gap?</i></span>
+    </div>
+    <div class="report-section insight-section">
+      <div class="report-icon" aria-hidden="true">💡</div>
+      <span>Some emotional or communication challenges may reflect underlying hurt, not lack of caring. If talking about these feelings triggers defensiveness or withdrawal, try pressing pause and offering gentle reassurance to each other first.</span>
+    </div>
+    `;
+  } else {
+    warningHtml = `
+    <div class="report-section good-news-section">
+      <div class="report-icon" aria-hidden="true">🌱</div>
+      <strong>Alignment:</strong> Your love languages are largely in sync! Use this as a foundation for ongoing connection and support.
+    </div>`;
+  }
+  return warningHtml;
+}
+
+// Build strengths (praise) section based on overlapping high scores or effort
+function buildPraiseSection(p1, p2) {
+  // Look for shared strengths
+  const shared = labels.filter(
+    (l, i) =>
+      p1.rec[i] >= 7 && p2.rec[i] >= 7
+  );
+  let praiseHtml = `
+  <div class="report-section praise-section">
+    <div class="report-icon" aria-hidden="true">🌟</div>
+    <strong>Praise & Affirmation:</strong>
+    <ul>
+      <li>${getPraise()}</li>
+  `;
+
+  if (shared.length > 0) {
+    praiseHtml += `<li>You both highly value <strong>${shared.map(
+      (l) => full[labels.indexOf(l)]
+    ).join(", ")}</strong>—this is a great strength!</li>`;
+  } else {
+    praiseHtml += `<li>Just by engaging in this exercise, you are showing care and willingness to grow together.</li>`;
+  }
+
+  praiseHtml += `
+      <li>Try naming one thing your partner does, even if it's small, that you appreciate this week.</li>
+    </ul>
+  </div>
+  `;
+  return praiseHtml;
+}
+
+// In your showCoupleReport function, insert these inside your report HTML
+function showCoupleReport() {
+  const p1 = getData("p1");
+  const p2 = getData("p2");
+
+  const html = `
+    <h2 style="text-align:center;">Couple Love Language Report</h2>
+    ${buildPraiseSection(p1, p2)}
+    <div style="margin: 1rem 0;">
+      <canvas id="compare-chart" width="340" height="220" style="margin:0 auto;display:block;"></canvas>
+    </div>
+    ${buildGraphWarnings(p1, p2)}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+      <div>
+        <h3>Person 1 Receiving</h3>${generateLanguageCards(p1, true, "p1")}
+        <h3>Person 1 Giving</h3>${generateLanguageCards(p1, false, "p1")}
+      </div>
+      <div>
+        <h3>Person 2 Receiving</h3>${generateLanguageCards(p2, true, "p2")}
+        <h3>Person 2 Giving</h3>${generateLanguageCards(p2, false, "p2")}
+      </div>
+    </div>
+    <div style="text-align:center; margin-top: 1.5rem;">
+      <button class="btn" onclick="closeReport()">Close Report</button>
+    </div>
+  `;
+  const rep = document.getElementById("report");
+  rep.innerHTML = html;
+  rep.style.display = "block";
+  rep.focus();
+
+  // Optional: Add a side-by-side radar chart, if you wish:
+  const ctx = document.getElementById("compare-chart").getContext("2d");
+  new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Person 1 Receive",
+          data: p1.rec,
+          backgroundColor: "rgba(52,152,219,0.2)",
+          borderColor: "#3498db",
+          borderWidth: 2,
+          pointBackgroundColor: "#3498db"
+        },
+        {
+          label: "Person 2 Receive",
+          data: p2.rec,
+          backgroundColor: "rgba(231,76,60,0.14)",
+          borderColor: "#e74c3c",
+          borderWidth: 2,
+          pointBackgroundColor: "#e74c3c"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: "easeOutCirc" },
+      plugins: {
+        legend: { labels: {color: "#2c3e50", font: {weight: "bold", size: 13}} },
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 10,
+          ticks: { stepSize: 2 },
+          pointLabels: { font: {size: 12, weight: "bold"} }
+        },
+      },
+    }
+  });
+}
 
 // Chart variables
 let soloChart, chart1, chart2;
