@@ -130,80 +130,36 @@ function buildSliders(containerId, prefix) {
     .join("");
 }
 
-// Chart creation function with dark mode color adaptation
 function createChart(canvasId, rec, give) {
   const dark = isDarkMode();
   const ctx = document.getElementById(canvasId).getContext("2d");
   return new Chart(ctx, {
     type: "radar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Receive",
-          data: rec,
-          backgroundColor: "rgba(52,152,219,0.2)",
-          borderColor: "#3498db",
-          pointBackgroundColor: [
-            "#3498db",
-            "#2ecc71",
-            "#f1c40f",
-            "#9b59b6",
-            "#e74c3c",
-          ],
-          pointBorderColor: "#fff",
-          borderWidth: 2,
-          fill: true,
-        },
-        {
-          label: "Give",
-          data: give,
-          backgroundColor: "rgba(46,204,113,0.2)",
-          borderColor: "#2ecc71",
-          pointBackgroundColor: Array(5).fill("#2ecc71"),
-          pointBorderColor: "#fff",
-          borderWidth: 2,
-          fill: true,
-        },
-      ],
-    },
+    data: { ... },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: {
-        duration: 600,
-        easing: "easeOutQuad",
-      },
       scales: {
         r: {
-          min: 0,
-          max: 10,
+          ...
           ticks: {
-            stepSize: 2,
-            color: dark ? "#e0e0e0" : "#2c3e50",
-            backdropColor: "transparent",
+            color: dark ? "#e0e0e0" : "#2c3e50"
           },
           grid: {
-            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
+            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)"
           },
           angleLines: {
-            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
+            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)"
           },
           pointLabels: {
-            font: { size: 14, weight: "600" },
-            color: dark ? "#bbe3cc" : "#2c3e50",
-          },
-        },
+            color: dark ? "#bbe3cc" : "#2c3e50"
+          }
+        }
       },
       plugins: {
         legend: {
-          labels: {
-            color: dark ? "#bbd1ea" : "#2c3e50",
-            font: { weight: "bold", size: 14 },
-          },
-        },
-      },
-    },
+          labels: { color: dark ? "#bbd1ea" : "#2c3e50" }
+        }
+      }
+    }
   });
 }
 
