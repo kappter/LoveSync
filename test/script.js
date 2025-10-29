@@ -528,14 +528,16 @@ function toggleDarkMode() {
   localStorage.setItem("darkMode", isDark);
 }
 
-function toggleDarkModeInit() {
-  const saved = localStorage.getItem("darkMode");
-  if (saved === "true") {
-    document.body.classList.add("dark");
-    document.getElementById("darkModeBtn").textContent = "Light Mode";
-  }
-  updateCharts();
-}
+function toggleDarkMode() {
+  const body = document.body;
+  const btn = document.getElementById("darkModeBtn");
+  body.classList.toggle("dark");
+  const isDark = body.classList.contains("dark");
+  btn.textContent = isDark ? "Light Mode" : "Dark Mode";
+  localStorage.setItem("darkMode", isDark);
+  updateCharts(); // if you want to rerender charts
+} // <-- This closing brace must be present
+
 
 // Onboarding overlay - show only once per client device
 function showOnboardingOnce() {
