@@ -1,4 +1,5 @@
-// Constants and Labels
+// LoveSync App JavaScript
+
 const labels = ["Words", "Acts", "Gifts", "Time", "Touch"];
 const full = [
   "Words of Affirmation",
@@ -8,14 +9,12 @@ const full = [
   "Physical Touch",
 ];
 
-// Emoji map for observations
 const emojiMap = {
   high: "❤️",
   medium: "💛",
   low: "🖤",
 };
 
-// Observations texts
 const obsReceive = {
   Words: {
     high: "You feel most loved when your partner says kind, affirming things.",
@@ -72,7 +71,6 @@ const obsGive = {
   },
 };
 
-// Praise affirmations array
 const praiseAffirmations = [
   "Your participation in this session shows hope and commitment.",
   "You both share the value of growth—which is a foundation for healing.",
@@ -81,10 +79,12 @@ const praiseAffirmations = [
   "Gratitude and appreciation can transform challenge into opportunity."
 ];
 
-// Chart variables
 let soloChart, chart1, chart2;
 
-// Onboarding overlay management
+function isDarkMode() {
+  return document.body.classList.contains("dark");
+}
+
 function showOnboardingOnce() {
   if (!localStorage.getItem("seenOnboarding")) {
     document.getElementById("onboarding-overlay").classList.remove("hidden");
@@ -98,36 +98,26 @@ function closeOnboarding() {
   if (firstSlider) firstSlider.focus();
 }
 
-// Detect if dark mode is active
-function isDarkMode() {
-  return document.body.classList.contains("dark");
-}
-
-// Slider builder - adds slider controls dynamically
 function buildSliders(containerId, prefix) {
   const cont = document.getElementById(containerId);
-  cont.innerHTML = labels
-    .map(
-      (l) => `
+  cont.innerHTML = labels.map((l, i) => `
     <div class="slider-row">
-      <label for="${prefix}rec${l.toLowerCase()}" title="${full[labels.indexOf(l)]} Receive Preference">${full[labels.indexOf(l)]} Receive</label>
-      <input type="range" id="${prefix}rec${l.toLowerCase()}" min="0" max="10" value="5" 
+      <label for="${prefix}rec${l.toLowerCase()}" title="${full[i]} Receive Preference">${full[i]} Receive</label>
+      <input type="range" id="${prefix}rec${l.toLowerCase()}" min="0" max="10" value="5"
         aria-valuemin="0" aria-valuemax="10" aria-valuenow="5"
-        aria-label="${full[labels.indexOf(l)]} receive preference slider"
+        aria-label="${full[i]} receive preference slider"
         oninput="updateCharts()" />
       <span id="val${prefix}rec${l.toLowerCase()}">5</span>
     </div>
     <div class="slider-row">
-      <label for="${prefix}give${l.toLowerCase()}" title="${full[labels.indexOf(l)]} Give Preference">${full[labels.indexOf(l)]} Give</label>
-      <input type="range" id="${prefix}give${l.toLowerCase()}" min="0" max="10" value="5" 
+      <label for="${prefix}give${l.toLowerCase()}" title="${full[i]} Give Preference">${full[i]} Give</label>
+      <input type="range" id="${prefix}give${l.toLowerCase()}" min="0" max="10" value="5"
         aria-valuemin="0" aria-valuemax="10" aria-valuenow="5"
-        aria-label="${full[labels.indexOf(l)]} give preference slider"
+        aria-label="${full[i]} give preference slider"
         oninput="updateCharts()" />
       <span id="val${prefix}give${l.toLowerCase()}">5</span>
     </div>
-  `
-    )
-    .join("");
+  `).join('');
 }
 
 function createChart(canvasId, rec, give) {
@@ -135,35 +125,77 @@ function createChart(canvasId, rec, give) {
   const ctx = document.getElementById(canvasId).getContext("2d");
   return new Chart(ctx, {
     type: "radar",
-    data: { ... },
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Receive",
+          data: rec,
+          backgroundColor: "rgba(52,152,219,0.2)",
+          borderColor: "#3498db",
+          pointBackgroundColor: [
+            "#3498db",
+            "#2ecc71",
+            "#f1c40f",
+            "#9b59b6",
+            "#e74c3c",
+          ],
+          pointBorderColor: "#fff",
+          borderWidth: 2,
+          fill: true,
+        },
+        {
+          label: "Give",
+          data: give,
+          backgroundColor: "rgba(46,204,113,0.2)",
+          borderColor: "#2ecc71",
+          pointBackgroundColor: Array(5).fill("#2ecc71"),
+          pointBorderColor: "#fff",
+          borderWidth: 2,
+          fill: true,
+        },
+      ],
+    },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 600,
+        easing: "easeOutQuad",
+      },
       scales: {
         r: {
-          ...
+          min: 0,
+          max: 10,
           ticks: {
-            color: dark ? "#e0e0e0" : "#2c3e50"
+            stepSize: 2,
+            color: dark ? "#e0e0e0" : "#2c3e50",
+            backdropColor: "transparent",
           },
           grid: {
-            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)"
+            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
           },
           angleLines: {
-            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)"
+            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
           },
           pointLabels: {
-            color: dark ? "#bbe3cc" : "#2c3e50"
-          }
-        }
+            font: { size: 14, weight: "600" },
+            color: dark ? "#bbe3cc" : "#2c3e50",
+          },
+        },
       },
       plugins: {
         legend: {
-          labels: { color: dark ? "#bbd1ea" : "#2c3e50" }
-        }
-      }
-    }
+          labels: {
+            color: dark ? "#bbd1ea" : "#2c3e50",
+            font: { weight: "bold", size: 14 },
+          },
+        },
+      },
+    },
   });
 }
 
-// Extract data from sliders for a prefix
 function getData(prefix) {
   const rec = labels.map(
     (l) => Number(document.getElementById(`${prefix}rec${l.toLowerCase()}`).value)
@@ -174,7 +206,6 @@ function getData(prefix) {
   return { rec, give };
 }
 
-// Update slider values text and chart data
 function updateCharts() {
   ["solo", "p1", "p2"].forEach((prefix) => {
     labels.forEach((l) => {
@@ -215,7 +246,6 @@ function updateCharts() {
   }
 }
 
-// Observations with emoji based on score
 function getObs(key, score, isReceive) {
   const set = isReceive ? obsReceive[key] : obsGive[key];
   if (score >= 7) {
@@ -227,26 +257,35 @@ function getObs(key, score, isReceive) {
   }
 }
 
-// Generate language cards with color-coded levels and emojis
-function generateLanguageCards(data, isReceive, prefix) {
-  return labels
-    .map((l, i) => {
-      const score = isReceive ? data.rec[i] : data.give[i];
-      const obs = getObs(l, score, isReceive);
-      return `<div class="language-card score-${obs.level}" data-emoji="${obs.emoji}">
-        <strong>${full[i]}</strong>: ${obs.text} <span>(Score: ${score}/10)</span>
-      </div>`;
-    })
-    .join("");
+// For paired row rendering
+function generateSingleLanguageCard(data, isReceive, i, prefix) {
+  const score = isReceive ? data.rec[i] : data.give[i];
+  const obs = getObs(labels[i], score, isReceive);
+  return `<div class="language-card score-${obs.level}" data-emoji="${obs.emoji}" style="flex:1; min-width:190px;">
+    <strong>${full[i]}</strong>: ${obs.text} <span>(Score: ${score}/10)</span>
+  </div>`;
 }
 
-// Praise affirmations helper
+function generatePairedLanguageRows(p1Data, p2Data, isReceive) {
+  const out = [];
+  labels.forEach((l, i) => {
+    const p1Card = generateSingleLanguageCard(p1Data, isReceive, i, "p1");
+    const p2Card = generateSingleLanguageCard(p2Data, isReceive, i, "p2");
+    out.push(`
+      <div class="paired-row">
+        ${p1Card}
+        ${p2Card}
+      </div>
+    `);
+  });
+  return out.join("");
+}
+
 function getPraise() {
   const idx = Math.floor(Math.random() * praiseAffirmations.length);
   return praiseAffirmations[idx];
 }
 
-// Build love gap warning section
 function buildGraphWarnings(p1, p2) {
   const gaps = labels.map((l, i) => Math.abs(p1.give[i] - p2.rec[i]));
   const maxGap = Math.max(...gaps);
@@ -276,7 +315,6 @@ function buildGraphWarnings(p1, p2) {
   return warningHtml;
 }
 
-// Build praise section based on shared strengths or effort
 function buildPraiseSection(p1, p2) {
   const shared = labels.filter(
     (l, i) =>
@@ -306,11 +344,10 @@ function buildPraiseSection(p1, p2) {
   return praiseHtml;
 }
 
-// Show solo report with language cards
 function showSoloReport() {
   const data = getData("solo");
-  const cardsReceive = generateLanguageCards(data, true, "solo");
-  const cardsGive = generateLanguageCards(data, false, "solo");
+  const cardsReceive = labels.map((l, i) => generateSingleLanguageCard(data, true, i, "solo")).join("");
+  const cardsGive = labels.map((l, i) => generateSingleLanguageCard(data, false, i, "solo")).join("");
 
   const html = `
     <h2 style="text-align:center;">Your Love Profile Report</h2>
@@ -329,7 +366,6 @@ function showSoloReport() {
   rep.focus();
 }
 
-// Show couple report with praise, warning, and comparison chart
 function showCoupleReport() {
   const p1 = getData("p1");
   const p2 = getData("p2");
@@ -341,14 +377,16 @@ function showCoupleReport() {
       <canvas id="compare-chart" width="340" height="220" style="margin:0 auto;display:block;"></canvas>
     </div>
     ${buildGraphWarnings(p1, p2)}
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-      <div>
-        <h3>Person 1 Receiving</h3>${generateLanguageCards(p1, true, "p1")}
-        <h3>Person 1 Giving</h3>${generateLanguageCards(p1, false, "p1")}
+    <div>
+      <h3>Receiving</h3>
+      <div class="paired-columns">
+        ${generatePairedLanguageRows(p1, p2, true)}
       </div>
-      <div>
-        <h3>Person 2 Receiving</h3>${generateLanguageCards(p2, true, "p2")}
-        <h3>Person 2 Giving</h3>${generateLanguageCards(p2, false, "p2")}
+    </div>
+    <div>
+      <h3>Giving</h3>
+      <div class="paired-columns">
+        ${generatePairedLanguageRows(p1, p2, false)}
       </div>
     </div>
     <div style="text-align:center; margin-top: 1.5rem;">
@@ -418,12 +456,10 @@ function showCoupleReport() {
   });
 }
 
-// Close the report display
 function closeReport() {
   document.getElementById("report").style.display = "none";
 }
 
-// Mode switching with ARIA updates
 function setMode(mode) {
   document.querySelectorAll(".mode-btn").forEach((b) => {
     b.classList.remove("active");
@@ -454,7 +490,6 @@ function setMode(mode) {
   }
 }
 
-// Toggle sliders on couple mode
 function toggleSliders() {
   const cont = document.getElementById("slidersContainer");
   const btn = document.querySelector(".toggle-btn");
@@ -463,7 +498,6 @@ function toggleSliders() {
   btn.textContent = isHidden ? "Hide Sliders" : "Show Sliders";
 }
 
-// Dark mode toggle logic and persistence
 function toggleDarkMode() {
   const body = document.body;
   const btn = document.getElementById("darkModeBtn");
@@ -479,7 +513,6 @@ function toggleDarkMode() {
   updateCharts();
 }
 
-// Initialize dark mode from preferences
 function toggleDarkModeInit() {
   const saved = localStorage.getItem("darkMode");
   if (saved === "true") {
@@ -489,7 +522,6 @@ function toggleDarkModeInit() {
   }
 }
 
-// Initial setup on DOM content loaded
 document.addEventListener("DOMContentLoaded", () => {
   buildSliders("solo-sliders", "solo");
   buildSliders("p1-sliders", "p1");
