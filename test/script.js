@@ -489,6 +489,86 @@ function setMode(mode) {
     chart2 = createChart("chart2", p2.rec, p2.give);
   }
 }
+function renderOverlapRadarChart(p1, p2) {
+  const ctx = document.getElementById("overlap-compare-chart").getContext("2d");
+  const dark = isDarkMode();
+
+  // Destroy any existing chart to avoid duplication
+  if (window.overlapChart) {
+    window.overlapChart.destroy();
+  }
+
+  window.overlapChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Person 1 Receive",
+          data: p1.rec,
+          backgroundColor: "rgba(52,152,219,0.2)",
+          borderColor: "#3498db",
+          borderWidth: 2,
+          pointBackgroundColor: "#3498db",
+        },
+        {
+          label: "Person 1 Give",
+          data: p1.give,
+          backgroundColor: "rgba(46,204,113,0.15)",
+          borderColor: "#2ecc71",
+          borderWidth: 2,
+          pointBackgroundColor: "#2ecc71",
+        },
+        {
+          label: "Person 2 Receive",
+          data: p2.rec,
+          backgroundColor: "rgba(231,76,60,0.14)",
+          borderColor: "#e74c3c",
+          borderWidth: 2,
+          pointBackgroundColor: "#e74c3c",
+        },
+        {
+          label: "Person 2 Give",
+          data: p2.give,
+          backgroundColor: "rgba(241,196,15,0.14)",
+          borderColor: "#f1c40f",
+          borderWidth: 2,
+          pointBackgroundColor: "#f1c40f",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 800,
+        easing: "easeOutCirc",
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: dark ? "#bbd1ea" : "#2c3e50",
+            font: { weight: "bold", size: 13 },
+          },
+        },
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 10,
+          ticks: {
+            stepSize: 2,
+            color: dark ? "#e0e0e0" : "#2c3e50",
+          },
+          pointLabels: {
+            font: { size: 12, weight: "bold" },
+            color: dark ? "#bbe3cc" : "#2c3e50",
+          },
+        },
+      },
+    },
+  });
+}
 
 function toggleSliders() {
   const cont = document.getElementById("slidersContainer");
