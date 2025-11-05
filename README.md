@@ -7,7 +7,7 @@ With a clean, touch-friendly interface optimized for phones and desktops, LoveSy
 **Discover your unique rhythm of giving and receiving love**  
 *An interactive Five Love Languages self-evaluator with PDF reports*
 
-[![LoveSync Demo](screenshots/demo-phone.png)](https://lovesync.app)  
+[![LoveSync Demo](screenshots/demo-phone.png)](https://kappter.github.io/LoveSync/)  
 *Mobile-first • Live Updates • Beautiful Reports • Print-Ready*
 
 ---
