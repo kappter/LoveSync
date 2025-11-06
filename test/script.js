@@ -380,11 +380,11 @@ function showCoupleReport() {
     <div class="charts-grid">
       <div class="chart-container">
         <h3>Receiving Comparison</h3>
-        <canvas id="compare-chart-receive" width="340" height="280"></canvas>
+        <canvas id="compare-chart-receive"></canvas>
       </div>
       <div class="chart-container">
         <h3>Giving Comparison</h3>
-        <canvas id="compare-chart-give" width="340" height="280"></canvas>
+        <canvas id="compare-chart-give"></canvas>
       </div>
     </div>
     
@@ -444,7 +444,7 @@ function showCoupleReport() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       animation: { duration: 800, easing: "easeOutCirc" },
       plugins: {
         legend: {
@@ -504,7 +504,7 @@ function showCoupleReport() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       animation: { duration: 800, easing: "easeOutCirc" },
       plugins: {
         legend: {
@@ -534,6 +534,7 @@ function showCoupleReport() {
     },
   });
 }
+
 
 function closeReport() {
   document.getElementById("report").style.display = "none";
