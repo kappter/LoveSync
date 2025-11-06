@@ -257,7 +257,6 @@ function getObs(key, score, isReceive) {
   }
 }
 
-// For paired row rendering
 function generateSingleLanguageCard(data, isReceive, i, prefix) {
   const score = isReceive ? data.rec[i] : data.give[i];
   const obs = getObs(labels[i], score, isReceive);
@@ -296,9 +295,11 @@ function buildGraphWarnings(p1, p2) {
     warningHtml = `
     <div class="report-section warning-section">
       <div class="report-icon" aria-hidden="true">⚠️</div>
-      <strong>Potential Love Gap:</strong>
-      <span>There is a strong mismatch in <em>${full[maxIndex]}</em> (gap of ${maxGap}). This can sometimes lead to misunderstandings or unmet needs. <br />
-      <b>Therapist prompt:</b> <i>How do you both feel when needs go unmet in this area? What has worked in the past to bridge this gap?</i></span>
+      <div>
+        <strong>Potential Love Gap:</strong>
+        <span>There is a strong mismatch in <em>${full[maxIndex]}</em> (gap of ${maxGap}). This can sometimes lead to misunderstandings or unmet needs. <br />
+        <b>Therapist prompt:</b> <i>How do you both feel when needs go unmet in this area? What has worked in the past to bridge this gap?</i></span>
+      </div>
     </div>
     <div class="report-section insight-section">
       <div class="report-icon" aria-hidden="true">💡</div>
@@ -323,9 +324,10 @@ function buildPraiseSection(p1, p2) {
   let praiseHtml = `
   <div class="report-section praise-section">
     <div class="report-icon" aria-hidden="true">🌟</div>
-    <strong>Praise & Affirmation:</strong>
-    <ul>
-      <li>${getPraise()}</li>
+    <div>
+      <strong>Praise & Affirmation:</strong>
+      <ul style="margin:0.5rem 0; padding-left:1.5rem;">
+        <li>${getPraise()}</li>
   `;
 
   if (shared.length > 0) {
@@ -337,8 +339,9 @@ function buildPraiseSection(p1, p2) {
   }
 
   praiseHtml += `
-      <li>Try naming one thing your partner does, even if it's small, that you appreciate this week.</li>
-    </ul>
+        <li>Try naming one thing your partner does, even if it's small, that you appreciate this week.</li>
+      </ul>
+    </div>
   </div>
   `;
   return praiseHtml;
@@ -373,10 +376,20 @@ function showCoupleReport() {
   const html = `
     <h2 style="text-align:center;">Couple Love Language Report</h2>
     ${buildPraiseSection(p1, p2)}
-    <div style="margin: 1rem 0;">
-      <canvas id="compare-chart" width="340" height="220" style="margin:0 auto;display:block;"></canvas>
+    
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3>Receiving Comparison</h3>
+        <canvas id="compare-chart-receive" width="340" height="280"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Giving Comparison</h3>
+        <canvas id="compare-chart-give" width="340" height="280"></canvas>
+      </div>
     </div>
+    
     ${buildGraphWarnings(p1, p2)}
+    
     <div>
       <h3>Receiving</h3>
       <div class="paired-columns">
@@ -400,13 +413,13 @@ function showCoupleReport() {
   rep.focus();
 
   const dark = isDarkMode();
-  const ctx = document.getElementById("compare-chart").getContext("2d");
 
-  if (window.compareChart) {
-    window.compareChart.destroy();
+  // Create Receive comparison chart
+  const ctxReceive = document.getElementById("compare-chart-receive").getContext("2d");
+  if (window.compareChartReceive) {
+    window.compareChartReceive.destroy();
   }
-
-  window.compareChart = new Chart(ctx, {
+  window.compareChartReceive = new Chart(ctxReceive, {
     type: "radar",
     data: {
       labels,
@@ -446,6 +459,72 @@ function showCoupleReport() {
           min: 0,
           max: 10,
           ticks: { stepSize: 2, color: dark ? "#e0e0e0" : "#2c3e50" },
+          grid: {
+            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
+          },
+          angleLines: {
+            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
+          },
+          pointLabels: {
+            font: { size: 12, weight: "bold" },
+            color: dark ? "#bbe3cc" : "#2c3e50",
+          },
+        },
+      },
+    },
+  });
+
+  // Create Give comparison chart
+  const ctxGive = document.getElementById("compare-chart-give").getContext("2d");
+  if (window.compareChartGive) {
+    window.compareChartGive.destroy();
+  }
+  window.compareChartGive = new Chart(ctxGive, {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Person 1 Give",
+          data: p1.give,
+          backgroundColor: "rgba(46,204,113,0.2)",
+          borderColor: "#2ecc71",
+          borderWidth: 2,
+          pointBackgroundColor: "#2ecc71",
+        },
+        {
+          label: "Person 2 Give",
+          data: p2.give,
+          backgroundColor: "rgba(241,196,15,0.2)",
+          borderColor: "#f1c40f",
+          borderWidth: 2,
+          pointBackgroundColor: "#f1c40f",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800, easing: "easeOutCirc" },
+      plugins: {
+        legend: {
+          labels: {
+            color: dark ? "#bbd1ea" : "#2c3e50",
+            font: { weight: "bold", size: 13 },
+          },
+        },
+      },
+      scales: {
+        r: {
+          min: 0,
+          max: 10,
+          ticks: { stepSize: 2, color: dark ? "#e0e0e0" : "#2c3e50" },
+          grid: {
+            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
+          },
+          angleLines: {
+            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
+          },
           pointLabels: {
             font: { size: 12, weight: "bold" },
             color: dark ? "#bbe3cc" : "#2c3e50",
@@ -489,86 +568,6 @@ function setMode(mode) {
     chart2 = createChart("chart2", p2.rec, p2.give);
   }
 }
-function renderOverlapRadarChart(p1, p2) {
-  const ctx = document.getElementById("overlap-compare-chart").getContext("2d");
-  const dark = isDarkMode();
-
-  // Destroy any existing chart to avoid duplication
-  if (window.overlapChart) {
-    window.overlapChart.destroy();
-  }
-
-  window.overlapChart = new Chart(ctx, {
-    type: "radar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Person 1 Receive",
-          data: p1.rec,
-          backgroundColor: "rgba(52,152,219,0.2)",
-          borderColor: "#3498db",
-          borderWidth: 2,
-          pointBackgroundColor: "#3498db",
-        },
-        {
-          label: "Person 1 Give",
-          data: p1.give,
-          backgroundColor: "rgba(46,204,113,0.15)",
-          borderColor: "#2ecc71",
-          borderWidth: 2,
-          pointBackgroundColor: "#2ecc71",
-        },
-        {
-          label: "Person 2 Receive",
-          data: p2.rec,
-          backgroundColor: "rgba(231,76,60,0.14)",
-          borderColor: "#e74c3c",
-          borderWidth: 2,
-          pointBackgroundColor: "#e74c3c",
-        },
-        {
-          label: "Person 2 Give",
-          data: p2.give,
-          backgroundColor: "rgba(241,196,15,0.14)",
-          borderColor: "#f1c40f",
-          borderWidth: 2,
-          pointBackgroundColor: "#f1c40f",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: {
-        duration: 800,
-        easing: "easeOutCirc",
-      },
-      plugins: {
-        legend: {
-          labels: {
-            color: dark ? "#bbd1ea" : "#2c3e50",
-            font: { weight: "bold", size: 13 },
-          },
-        },
-      },
-      scales: {
-        r: {
-          min: 0,
-          max: 10,
-          ticks: {
-            stepSize: 2,
-            color: dark ? "#e0e0e0" : "#2c3e50",
-          },
-          pointLabels: {
-            font: { size: 12, weight: "bold" },
-            color: dark ? "#bbe3cc" : "#2c3e50",
-          },
-        },
-      },
-    },
-  });
-}
 
 function toggleSliders() {
   const cont = document.getElementById("slidersContainer");
@@ -585,11 +584,18 @@ function toggleDarkMode() {
   const isDark = body.classList.contains("dark");
   btn.textContent = isDark ? "Light Mode" : "Dark Mode";
   localStorage.setItem("darkMode", isDark);
-  // Refresh charts to update text colors
+  
   if (soloChart) soloChart.destroy();
   if (chart1) chart1.destroy();
   if (chart2) chart2.destroy();
-  if (window.compareChart) window.compareChart.destroy();
+  if (window.compareChartReceive) window.compareChartReceive.destroy();
+  if (window.compareChartGive) window.compareChartGive.destroy();
+  soloChart = null;
+  chart1 = null;
+  chart2 = null;
+  window.compareChartReceive = null;
+  window.compareChartGive = null;
+  
   updateCharts();
 }
 
