@@ -2,79 +2,148 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LoveSync Solo or Couple</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>LoveSync - Love Language Assessment</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- MODE SWITCH -->
-  <div class="mode-switch" role="tablist" aria-label="Switch between Solo and Couple Modes">
-    <button class="mode-btn active" data-mode="solo" onclick="setMode('solo')" role="tab" aria-selected="true" tabindex="0">Solo Mode</button>
-    <button class="mode-btn" data-mode="couple" onclick="setMode('couple')" role="tab" aria-selected="false" tabindex="-1">Couple Mode</button>
+  <!-- Mode Switch -->
+  <div class="mode-switch" role="tablist" aria-label="Assessment Mode">
+    <button class="mode-btn active" data-mode="solo" onclick="setMode('solo')" role="tab" aria-selected="true">Solo</button>
+    <button class="mode-btn" data-mode="couple" onclick="setMode('couple')" role="tab" aria-selected="false">Couple</button>
   </div>
 
-  <!-- DARK MODE TOGGLE -->
+  <!-- Dark Mode Toggle -->
   <div class="dark-mode-toggle">
-    <button id="darkModeBtn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">Dark Mode</button>
+    <button id="darkModeBtn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">🌙 Dark</button>
   </div>
 
   <h1 id="page-title">LoveSync Solo Mode</h1>
 
-  <!-- FIRST TIME ONBOARDING OVERLAY -->
-  <div id="onboarding-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+  <!-- Onboarding Overlay -->
+  <div id="onboarding-overlay" class="overlay hidden" role="dialog" aria-modal="true">
     <div class="onboarding-content panel">
       <h2 id="onboarding-title">Welcome to LoveSync</h2>
-      <p>Use the sliders to quickly rate your love language preferences. The radar chart updates instantly.</p>
-      <p>Generate your personalized report to explore reflections and discussion points.</p>
+      <p>Use the sliders to rate your love language preferences. Your radar chart updates instantly.</p>
+      <p><strong>Couple Mode:</strong> You can share your results with a simple code!</p>
       <button class="btn" onclick="closeOnboarding()">Get Started</button>
     </div>
   </div>
 
-  <!-- SOLO MODE -->
+  <!-- Solo Mode Container -->
   <div id="solo-container" class="mode-container">
     <div class="panel">
       <h2>Your Love Profile</h2>
-      <div id="solo-sliders" class="sliders-container" aria-label="Love language sliders"></div>
+      <div id="solo-sliders" class="sliders-container"></div>
       <div class="chart-box">
-        <canvas id="solo-chart" aria-label="Radar chart of your love languages" role="img"></canvas>
+        <canvas id="solo-chart" aria-label="Love language radar chart" role="img"></canvas>
       </div>
+      
+      <!-- Share Code Section for Solo -->
+      <div class="share-section">
+        <button class="btn btn--secondary" onclick="generateSoloShareCode()">📤 Generate Share Code</button>
+        <div id="solo-share-display" class="share-display hidden">
+          <p class="share-label">Share this code:</p>
+          <div class="code-display-box">
+            <input type="text" id="solo-share-code" readonly class="code-input" />
+            <button class="btn-icon" onclick="copySoloCode()" title="Copy to clipboard">📋</button>
+          </div>
+          <p class="share-hint">Your partner can enter this in Couple Mode</p>
+        </div>
+      </div>
+      
       <div class="btn-center">
-        <button class="btn" onclick="showSoloReport()" aria-describedby="report-instruction">Generate My Report</button>
+        <button class="btn" onclick="showSoloReport()">Generate My Report</button>
       </div>
-      <p id="report-instruction" class="visually-hidden">Press this button to generate your personalized love language report</p>
     </div>
   </div>
 
-  <!-- COUPLE MODE -->
+  <!-- Couple Mode Container -->
   <div id="couple-container" class="mode-container" style="display:none;">
+    
+    <!-- Code Entry Section -->
+    <div class="panel code-entry-panel">
+      <h3>💡 Two Ways to Use Couple Mode</h3>
+      <div class="usage-options">
+        <div class="usage-option">
+          <strong>Option 1: Share Codes</strong>
+          <p>Each person completes assessment on their own device, then share codes to compare</p>
+        </div>
+        <div class="usage-option">
+          <strong>Option 2: Same Device</strong>
+          <p>Both complete assessments together using the sliders below</p>
+        </div>
+      </div>
+      
+      <div class="code-entry-section">
+        <h3>Enter Partner's Code (Optional)</h3>
+        <div class="code-input-group">
+          <input type="text" id="partner-code-input" placeholder="e.g., ABC123XYZ" 
+                 class="code-input-field" maxlength="20" />
+          <button class="btn" onclick="loadPartnerCode()">Load Partner Data</button>
+        </div>
+        <p id="code-status" class="code-status"></p>
+      </div>
+    </div>
+
+    <!-- Toggle Sliders Button -->
     <div class="toggle-container">
-      <button class="toggle-btn" onclick="toggleSliders()">Show Sliders</button>
+      <button class="toggle-btn" onclick="toggleSliders()">📊 Show Assessment Sliders</button>
     </div>
-    <div id="slidersContainer" class="sliders-grid" style="display:none;">
-      <div class="panel">
-        <h2>Person 1</h2>
-        <div id="p1-sliders" class="sliders-container" aria-label="Person 1 love language sliders"></div>
+
+    <!-- Sliders Container (Hidden by default on mobile) -->
+    <div id="slidersContainer" class="sliders-container-couple" style="display:none;">
+      <div class="panel person-panel">
+        <h2>👤 Person 1</h2>
+        <div id="p1-sliders" class="sliders-container"></div>
         <div class="chart-box">
-          <canvas id="chart1" aria-label="Person 1 love language radar chart" role="img"></canvas>
+          <canvas id="chart1" aria-label="Person 1 radar chart" role="img"></canvas>
+        </div>
+        
+        <!-- Share Code for P1 -->
+        <div class="share-section">
+          <button class="btn btn--secondary btn--sm" onclick="generateP1ShareCode()">📤 Share Code</button>
+          <div id="p1-share-display" class="share-display hidden">
+            <div class="code-display-box">
+              <input type="text" id="p1-share-code" readonly class="code-input code-input--sm" />
+              <button class="btn-icon btn-icon--sm" onclick="copyP1Code()">📋</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="panel">
-        <h2>Person 2</h2>
-        <div id="p2-sliders" class="sliders-container" aria-label="Person 2 love language sliders"></div>
+
+      <div class="panel person-panel">
+        <h2>👤 Person 2</h2>
+        <div id="p2-sliders" class="sliders-container"></div>
         <div class="chart-box">
-          <canvas id="chart2" aria-label="Person 2 love language radar chart" role="img"></canvas>
+          <canvas id="chart2" aria-label="Person 2 radar chart" role="img"></canvas>
+        </div>
+        
+        <!-- Share Code for P2 -->
+        <div class="share-section">
+          <button class="btn btn--secondary btn--sm" onclick="generateP2ShareCode()">📤 Share Code</button>
+          <div id="p2-share-display" class="share-display hidden">
+            <div class="code-display-box">
+              <input type="text" id="p2-share-code" readonly class="code-input code-input--sm" />
+              <button class="btn-icon btn-icon--sm" onclick="copyP2Code()">📋</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Generate Report Button -->
     <div class="btn-center">
-      <button class="btn" onclick="showCoupleReport()">Show Comparison Report</button>
+      <button class="btn btn--large" onclick="showCoupleReport()">📊 Show Comparison Report</button>
     </div>
   </div>
 
-  <!-- REPORT -->
-  <div id="report" class="report" role="region" aria-live="polite" aria-atomic="true" style="display:none;" tabindex="-1"></div>
+  <!-- Report Display Area -->
+  <div id="report" role="region" aria-live="polite" class="report" style="display:none;"></div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
