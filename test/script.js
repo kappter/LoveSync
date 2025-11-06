@@ -1,4 +1,4 @@
-// LoveSync App JavaScript
+// LoveSync App JavaScript - Full Implementation with Share Codes
 
 const labels = ["Words", "Acts", "Gifts", "Time", "Touch"];
 const full = [
@@ -81,6 +81,175 @@ const praiseAffirmations = [
 
 let soloChart, chart1, chart2;
 
+// ==================== SHARE CODE FUNCTIONS ====================
+
+function generateShareCode(data) {
+  const values = [...data.rec, ...data.give];
+  const encoded = btoa(values.join(','));
+  return encoded.substring(0, 12).toUpperCase().replace(/[+/=]/g, (c) => {
+    return c === '+' ? 'X' : c === '/' ? 'Y' : 'Z';
+  });
+}
+
+function parseShareCode(code) {
+  try {
+    const normalized = code.replace(/X/g, '+').replace(/Y/g, '/').replace(/Z/g, '=');
+    const decoded = atob(normalized);
+    const values = decoded.split(',').map(Number);
+    
+    if (values.length !== 10 || values.some(v => isNaN(v) || v < 0 || v > 10)) {
+      return null;
+    }
+    
+    return {
+      rec: values.slice(0, 5),
+      give: values.slice(5, 10)
+    };
+  } catch(e) {
+    return null;
+  }
+}
+
+function applyDataToSliders(prefix, data) {
+  labels.forEach((l, i) => {
+    const recSlider = document.getElementById(`${prefix}rec${l.toLowerCase()}`);
+    const giveSlider = document.getElementById(`${prefix}give${l.toLowerCase()}`);
+    if (recSlider && giveSlider) {
+      recSlider.value = data.rec[i];
+      giveSlider.value = data.give[i];
+      document.getElementById(`val${prefix}rec${l.toLowerCase()}`).textContent = data.rec[i];
+      document.getElementById(`val${prefix}give${l.toLowerCase()}`).textContent = data.give[i];
+    }
+  });
+  updateCharts();
+}
+
+// Solo Share Code
+function generateSoloShareCode() {
+  const data = getData("solo");
+  const code = generateShareCode(data);
+  document.getElementById("solo-share-code").value = code;
+  document.getElementById("solo-share-display").classList.remove("hidden");
+}
+
+function copySoloCode() {
+  const codeInput = document.getElementById("solo-share-code");
+  codeInput.select();
+  codeInput.setSelectionRange(0, 99999); // For mobile
+  
+  try {
+    document.execCommand("copy");
+    showToast("✓ Code copied!");
+  } catch(e) {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      showToast("✓ Code copied!");
+    });
+  }
+}
+
+// Person 1 Share Code
+function generateP1ShareCode() {
+  const data = getData("p1");
+  const code = generateShareCode(data);
+  document.getElementById("p1-share-code").value = code;
+  document.getElementById("p1-share-display").classList.remove("hidden");
+}
+
+function copyP1Code() {
+  const codeInput = document.getElementById("p1-share-code");
+  codeInput.select();
+  codeInput.setSelectionRange(0, 99999);
+  
+  try {
+    document.execCommand("copy");
+    showToast("✓ Person 1 code copied!");
+  } catch(e) {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      showToast("✓ Person 1 code copied!");
+    });
+  }
+}
+
+// Person 2 Share Code
+function generateP2ShareCode() {
+  const data = getData("p2");
+  const code = generateShareCode(data);
+  document.getElementById("p2-share-code").value = code;
+  document.getElementById("p2-share-display").classList.remove("hidden");
+}
+
+function copyP2Code() {
+  const codeInput = document.getElementById("p2-share-code");
+  codeInput.select();
+  codeInput.setSelectionRange(0, 99999);
+  
+  try {
+    document.execCommand("copy");
+    showToast("✓ Person 2 code copied!");
+  } catch(e) {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      showToast("✓ Person 2 code copied!");
+    });
+  }
+}
+
+// Load Partner Code
+function loadPartnerCode() {
+  const code = document.getElementById("partner-code-input").value.trim().toUpperCase();
+  const statusEl = document.getElementById("code-status");
+  
+  if (!code) {
+    statusEl.textContent = "⚠ Please enter a code";
+    statusEl.style.color = "#f1c40f";
+    return;
+  }
+  
+  const data = parseShareCode(code);
+  
+  if (data) {
+    applyDataToSliders("p1", data);
+    statusEl.textContent = "✓ Partner data loaded successfully!";
+    statusEl.style.color = "#2ecc71";
+    
+    // Show sliders if hidden
+    const slidersContainer = document.getElementById("slidersContainer");
+    if (slidersContainer.style.display === "none") {
+      toggleSliders();
+    }
+  } else {
+    statusEl.textContent = "✗ Invalid code. Please check and try again.";
+    statusEl.style.color = "#e74c3c";
+  }
+}
+
+// Toast notification
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2ecc71;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = "slideDown 0.3s ease-out";
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
+
+// ==================== CORE FUNCTIONS ====================
+
 function isDarkMode() {
   return document.body.classList.contains("dark");
 }
@@ -94,27 +263,21 @@ function showOnboardingOnce() {
 
 function closeOnboarding() {
   document.getElementById("onboarding-overlay").classList.add("hidden");
-  const firstSlider = document.querySelector("input[type=range]");
-  if (firstSlider) firstSlider.focus();
 }
 
 function buildSliders(containerId, prefix) {
   const cont = document.getElementById(containerId);
   cont.innerHTML = labels.map((l, i) => `
     <div class="slider-row">
-      <label for="${prefix}rec${l.toLowerCase()}" title="${full[i]} Receive Preference">${full[i]} Receive</label>
+      <label for="${prefix}rec${l.toLowerCase()}">${full[i]} Receive</label>
       <input type="range" id="${prefix}rec${l.toLowerCase()}" min="0" max="10" value="5"
-        aria-valuemin="0" aria-valuemax="10" aria-valuenow="5"
-        aria-label="${full[i]} receive preference slider"
-        oninput="updateCharts()" />
+        aria-label="${full[i]} receive slider" oninput="updateCharts()" />
       <span id="val${prefix}rec${l.toLowerCase()}">5</span>
     </div>
     <div class="slider-row">
-      <label for="${prefix}give${l.toLowerCase()}" title="${full[i]} Give Preference">${full[i]} Give</label>
+      <label for="${prefix}give${l.toLowerCase()}">${full[i]} Give</label>
       <input type="range" id="${prefix}give${l.toLowerCase()}" min="0" max="10" value="5"
-        aria-valuemin="0" aria-valuemax="10" aria-valuenow="5"
-        aria-label="${full[i]} give preference slider"
-        oninput="updateCharts()" />
+        aria-label="${full[i]} give slider" oninput="updateCharts()" />
       <span id="val${prefix}give${l.toLowerCase()}">5</span>
     </div>
   `).join('');
@@ -133,13 +296,7 @@ function createChart(canvasId, rec, give) {
           data: rec,
           backgroundColor: "rgba(52,152,219,0.2)",
           borderColor: "#3498db",
-          pointBackgroundColor: [
-            "#3498db",
-            "#2ecc71",
-            "#f1c40f",
-            "#9b59b6",
-            "#e74c3c",
-          ],
+          pointBackgroundColor: ["#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e74c3c"],
           pointBorderColor: "#fff",
           borderWidth: 2,
           fill: true,
@@ -159,10 +316,7 @@ function createChart(canvasId, rec, give) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: {
-        duration: 600,
-        easing: "easeOutQuad",
-      },
+      animation: { duration: 600, easing: "easeOutQuad" },
       scales: {
         r: {
           min: 0,
@@ -179,7 +333,7 @@ function createChart(canvasId, rec, give) {
             color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
           },
           pointLabels: {
-            font: { size: 14, weight: "600" },
+            font: { size: 13, weight: "600" },
             color: dark ? "#bbe3cc" : "#2c3e50",
           },
         },
@@ -188,7 +342,7 @@ function createChart(canvasId, rec, give) {
         legend: {
           labels: {
             color: dark ? "#bbd1ea" : "#2c3e50",
-            font: { weight: "bold", size: 14 },
+            font: { weight: "bold", size: 13 },
           },
         },
       },
@@ -212,10 +366,8 @@ function updateCharts() {
       const recVal = document.getElementById(`${prefix}rec${l.toLowerCase()}`);
       const giveVal = document.getElementById(`${prefix}give${l.toLowerCase()}`);
       if (recVal && giveVal) {
-        document.getElementById(`val${prefix}rec${l.toLowerCase()}`).textContent =
-          recVal.value;
-        document.getElementById(`val${prefix}give${l.toLowerCase()}`).textContent =
-          giveVal.value;
+        document.getElementById(`val${prefix}rec${l.toLowerCase()}`).textContent = recVal.value;
+        document.getElementById(`val${prefix}give${l.toLowerCase()}`).textContent = giveVal.value;
       }
     });
   });
@@ -260,29 +412,21 @@ function getObs(key, score, isReceive) {
 function generateSingleLanguageCard(data, isReceive, i, prefix) {
   const score = isReceive ? data.rec[i] : data.give[i];
   const obs = getObs(labels[i], score, isReceive);
-  return `<div class="language-card score-${obs.level}" data-emoji="${obs.emoji}" style="flex:1; min-width:190px;">
+  return `<div class="language-card score-${obs.level}" data-emoji="${obs.emoji}">
     <strong>${full[i]}</strong>: ${obs.text} <span>(Score: ${score}/10)</span>
   </div>`;
 }
 
 function generatePairedLanguageRows(p1Data, p2Data, isReceive) {
-  const out = [];
-  labels.forEach((l, i) => {
+  return labels.map((l, i) => {
     const p1Card = generateSingleLanguageCard(p1Data, isReceive, i, "p1");
     const p2Card = generateSingleLanguageCard(p2Data, isReceive, i, "p2");
-    out.push(`
-      <div class="paired-row">
-        ${p1Card}
-        ${p2Card}
-      </div>
-    `);
-  });
-  return out.join("");
+    return `<div class="paired-row">${p1Card}${p2Card}</div>`;
+  }).join("");
 }
 
 function getPraise() {
-  const idx = Math.floor(Math.random() * praiseAffirmations.length);
-  return praiseAffirmations[idx];
+  return praiseAffirmations[Math.floor(Math.random() * praiseAffirmations.length)];
 }
 
 function buildGraphWarnings(p1, p2) {
@@ -290,50 +434,46 @@ function buildGraphWarnings(p1, p2) {
   const maxGap = Math.max(...gaps);
   const maxIndex = gaps.indexOf(maxGap);
 
-  let warningHtml = "";
   if (maxGap >= 3) {
-    warningHtml = `
+    return `
     <div class="report-section warning-section">
-      <div class="report-icon" aria-hidden="true">⚠️</div>
+      <div class="report-icon">⚠️</div>
       <div>
         <strong>Potential Love Gap:</strong>
-        <span>There is a strong mismatch in <em>${full[maxIndex]}</em> (gap of ${maxGap}). This can sometimes lead to misunderstandings or unmet needs. <br />
-        <b>Therapist prompt:</b> <i>How do you both feel when needs go unmet in this area? What has worked in the past to bridge this gap?</i></span>
+        <span>There is a strong mismatch in <em>${full[maxIndex]}</em> (gap of ${maxGap}). 
+        This can sometimes lead to misunderstandings or unmet needs.<br/>
+        <b>Therapist prompt:</b> <i>How do you both feel when needs go unmet in this area? 
+        What has worked in the past to bridge this gap?</i></span>
       </div>
     </div>
     <div class="report-section insight-section">
-      <div class="report-icon" aria-hidden="true">💡</div>
-      <span>Some emotional or communication challenges may reflect underlying hurt, not lack of caring. If talking about these feelings triggers defensiveness or withdrawal, try pressing pause and offering gentle reassurance to each other first.</span>
-    </div>
-    `;
+      <div class="report-icon">💡</div>
+      <span>Some emotional or communication challenges may reflect underlying hurt, not lack of caring. 
+      If talking about these feelings triggers defensiveness or withdrawal, try pressing pause and 
+      offering gentle reassurance to each other first.</span>
+    </div>`;
   } else {
-    warningHtml = `
+    return `
     <div class="report-section good-news-section">
-      <div class="report-icon" aria-hidden="true">🌱</div>
-      <strong>Alignment:</strong> Your love languages are largely in sync! Use this as a foundation for ongoing connection and support.
+      <div class="report-icon">🌱</div>
+      <strong>Alignment:</strong> Your love languages are largely in sync! Use this as a foundation 
+      for ongoing connection and support.
     </div>`;
   }
-  return warningHtml;
 }
 
 function buildPraiseSection(p1, p2) {
-  const shared = labels.filter(
-    (l, i) =>
-      p1.rec[i] >= 7 && p2.rec[i] >= 7
-  );
+  const shared = labels.filter((l, i) => p1.rec[i] >= 7 && p2.rec[i] >= 7);
   let praiseHtml = `
   <div class="report-section praise-section">
-    <div class="report-icon" aria-hidden="true">🌟</div>
+    <div class="report-icon">🌟</div>
     <div>
       <strong>Praise & Affirmation:</strong>
       <ul style="margin:0.5rem 0; padding-left:1.5rem;">
-        <li>${getPraise()}</li>
-  `;
+        <li>${getPraise()}</li>`;
 
   if (shared.length > 0) {
-    praiseHtml += `<li>You both highly value <strong>${shared
-      .map((l) => full[labels.indexOf(l)])
-      .join(", ")}</strong>—this is a great strength!</li>`;
+    praiseHtml += `<li>You both highly value <strong>${shared.map(l => full[labels.indexOf(l)]).join(", ")}</strong>—this is a great strength!</li>`;
   } else {
     praiseHtml += `<li>Just by engaging in this exercise, you are showing care and willingness to grow together.</li>`;
   }
@@ -342,8 +482,7 @@ function buildPraiseSection(p1, p2) {
         <li>Try naming one thing your partner does, even if it's small, that you appreciate this week.</li>
       </ul>
     </div>
-  </div>
-  `;
+  </div>`;
   return praiseHtml;
 }
 
@@ -367,6 +506,7 @@ function showSoloReport() {
   rep.innerHTML = html;
   rep.style.display = "block";
   rep.focus();
+  window.scrollTo({ top: rep.offsetTop - 20, behavior: "smooth" });
 }
 
 function showCoupleReport() {
@@ -392,15 +532,11 @@ function showCoupleReport() {
     
     <div>
       <h3>Receiving</h3>
-      <div class="paired-columns">
-        ${generatePairedLanguageRows(p1, p2, true)}
-      </div>
+      <div class="paired-columns">${generatePairedLanguageRows(p1, p2, true)}</div>
     </div>
     <div>
       <h3>Giving</h3>
-      <div class="paired-columns">
-        ${generatePairedLanguageRows(p1, p2, false)}
-      </div>
+      <div class="paired-columns">${generatePairedLanguageRows(p1, p2, false)}</div>
     </div>
     <div style="text-align:center; margin-top: 1.5rem;">
       <button class="btn" onclick="closeReport()">Close Report</button>
@@ -414,127 +550,70 @@ function showCoupleReport() {
 
   const dark = isDarkMode();
 
-  // Create Receive comparison chart
   const ctxReceive = document.getElementById("compare-chart-receive").getContext("2d");
-  if (window.compareChartReceive) {
-    window.compareChartReceive.destroy();
-  }
+  if (window.compareChartReceive) window.compareChartReceive.destroy();
+  
   window.compareChartReceive = new Chart(ctxReceive, {
     type: "radar",
     data: {
       labels,
       datasets: [
-        {
-          label: "Person 1 Receive",
-          data: p1.rec,
-          backgroundColor: "rgba(52,152,219,0.2)",
-          borderColor: "#3498db",
-          borderWidth: 2,
-          pointBackgroundColor: "#3498db",
-        },
-        {
-          label: "Person 2 Receive",
-          data: p2.rec,
-          backgroundColor: "rgba(231,76,60,0.14)",
-          borderColor: "#e74c3c",
-          borderWidth: 2,
-          pointBackgroundColor: "#e74c3c",
-        },
+        { label: "Person 1 Receive", data: p1.rec, backgroundColor: "rgba(52,152,219,0.2)", 
+          borderColor: "#3498db", borderWidth: 2, pointBackgroundColor: "#3498db" },
+        { label: "Person 2 Receive", data: p2.rec, backgroundColor: "rgba(231,76,60,0.14)", 
+          borderColor: "#e74c3c", borderWidth: 2, pointBackgroundColor: "#e74c3c" },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
       animation: { duration: 800, easing: "easeOutCirc" },
-      plugins: {
-        legend: {
-          labels: {
-            color: dark ? "#bbd1ea" : "#2c3e50",
-            font: { weight: "bold", size: 13 },
-          },
-        },
-      },
+      plugins: { legend: { labels: { color: dark ? "#bbd1ea" : "#2c3e50", font: { weight: "bold", size: 13 }}}},
       scales: {
         r: {
-          min: 0,
-          max: 10,
+          min: 0, max: 10,
           ticks: { stepSize: 2, color: dark ? "#e0e0e0" : "#2c3e50" },
-          grid: {
-            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
-          },
-          angleLines: {
-            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
-          },
-          pointLabels: {
-            font: { size: 12, weight: "bold" },
-            color: dark ? "#bbe3cc" : "#2c3e50",
-          },
+          grid: { color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)" },
+          angleLines: { color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)" },
+          pointLabels: { font: { size: 12, weight: "bold" }, color: dark ? "#bbe3cc" : "#2c3e50" },
         },
       },
     },
   });
 
-  // Create Give comparison chart
   const ctxGive = document.getElementById("compare-chart-give").getContext("2d");
-  if (window.compareChartGive) {
-    window.compareChartGive.destroy();
-  }
+  if (window.compareChartGive) window.compareChartGive.destroy();
+  
   window.compareChartGive = new Chart(ctxGive, {
     type: "radar",
     data: {
       labels,
       datasets: [
-        {
-          label: "Person 1 Give",
-          data: p1.give,
-          backgroundColor: "rgba(46,204,113,0.2)",
-          borderColor: "#2ecc71",
-          borderWidth: 2,
-          pointBackgroundColor: "#2ecc71",
-        },
-        {
-          label: "Person 2 Give",
-          data: p2.give,
-          backgroundColor: "rgba(241,196,15,0.2)",
-          borderColor: "#f1c40f",
-          borderWidth: 2,
-          pointBackgroundColor: "#f1c40f",
-        },
+        { label: "Person 1 Give", data: p1.give, backgroundColor: "rgba(46,204,113,0.2)", 
+          borderColor: "#2ecc71", borderWidth: 2, pointBackgroundColor: "#2ecc71" },
+        { label: "Person 2 Give", data: p2.give, backgroundColor: "rgba(241,196,15,0.2)", 
+          borderColor: "#f1c40f", borderWidth: 2, pointBackgroundColor: "#f1c40f" },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
       animation: { duration: 800, easing: "easeOutCirc" },
-      plugins: {
-        legend: {
-          labels: {
-            color: dark ? "#bbd1ea" : "#2c3e50",
-            font: { weight: "bold", size: 13 },
-          },
-        },
-      },
+      plugins: { legend: { labels: { color: dark ? "#bbd1ea" : "#2c3e50", font: { weight: "bold", size: 13 }}}},
       scales: {
         r: {
-          min: 0,
-          max: 10,
+          min: 0, max: 10,
           ticks: { stepSize: 2, color: dark ? "#e0e0e0" : "#2c3e50" },
-          grid: {
-            color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)",
-          },
-          angleLines: {
-            color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)",
-          },
-          pointLabels: {
-            font: { size: 12, weight: "bold" },
-            color: dark ? "#bbe3cc" : "#2c3e50",
-          },
+          grid: { color: dark ? "rgba(187,209,234,0.3)" : "rgba(44,62,80,0.2)" },
+          angleLines: { color: dark ? "rgba(187,209,234,0.7)" : "rgba(44,62,80,0.4)" },
+          pointLabels: { font: { size: 12, weight: "bold" }, color: dark ? "#bbe3cc" : "#2c3e50" },
         },
       },
     },
   });
-}
 
+  window.scrollTo({ top: rep.offsetTop - 20, behavior: "smooth" });
+}
 
 function closeReport() {
   document.getElementById("report").style.display = "none";
@@ -544,13 +623,12 @@ function setMode(mode) {
   document.querySelectorAll(".mode-btn").forEach((b) => {
     b.classList.remove("active");
     b.setAttribute("aria-selected", "false");
-    b.setAttribute("tabindex", "-1");
   });
+  
   const activeBtn = document.querySelector(`.mode-btn[data-mode="${mode}"]`);
   if (activeBtn) {
     activeBtn.classList.add("active");
     activeBtn.setAttribute("aria-selected", "true");
-    activeBtn.setAttribute("tabindex", "0");
   }
 
   document.getElementById("solo-container").style.display = mode === "solo" ? "block" : "none";
@@ -574,8 +652,8 @@ function toggleSliders() {
   const cont = document.getElementById("slidersContainer");
   const btn = document.querySelector(".toggle-btn");
   const isHidden = cont.style.display === "none";
-  cont.style.display = isHidden ? "grid" : "none";
-  btn.textContent = isHidden ? "Hide Sliders" : "Show Sliders";
+  cont.style.display = isHidden ? "flex" : "none";
+  btn.textContent = isHidden ? "📊 Hide Assessment Sliders" : "📊 Show Assessment Sliders";
 }
 
 function toggleDarkMode() {
@@ -583,7 +661,7 @@ function toggleDarkMode() {
   const btn = document.getElementById("darkModeBtn");
   body.classList.toggle("dark");
   const isDark = body.classList.contains("dark");
-  btn.textContent = isDark ? "Light Mode" : "Dark Mode";
+  btn.textContent = isDark ? "☀️ Light" : "🌙 Dark";
   localStorage.setItem("darkMode", isDark);
   
   if (soloChart) soloChart.destroy();
@@ -591,6 +669,7 @@ function toggleDarkMode() {
   if (chart2) chart2.destroy();
   if (window.compareChartReceive) window.compareChartReceive.destroy();
   if (window.compareChartGive) window.compareChartGive.destroy();
+  
   soloChart = null;
   chart1 = null;
   chart2 = null;
@@ -605,7 +684,7 @@ function toggleDarkModeInit() {
   if (saved === "true") {
     document.body.classList.add("dark");
     const btn = document.getElementById("darkModeBtn");
-    if (btn) btn.textContent = "Light Mode";
+    if (btn) btn.textContent = "☀️ Light";
   }
 }
 
