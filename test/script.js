@@ -1,4 +1,4 @@
-// LoveSync App JavaScript - Full Implementation with Share Codes
+// LoveSync App JavaScript - Complete with Share Codes & Print
 
 const labels = ["Words", "Acts", "Gifts", "Time", "Touch"];
 const full = [
@@ -81,20 +81,20 @@ const praiseAffirmations = [
 
 let soloChart, chart1, chart2;
 
+// ==================== SHARE CODE FUNCTIONS (FIXED) ====================
+
 function generateShareCode(data) {
   const values = [...data.rec, ...data.give];
-  // Encode the full string - don't truncate!
+  // Full base64 encode - NO truncation
   const encoded = btoa(values.join(','));
-  return encoded; // Return complete base64 string
+  return encoded;
 }
 
 function parseShareCode(code) {
   try {
-    // Decode the complete base64 string
     const decoded = atob(code);
     const values = decoded.split(',').map(Number);
     
-    // Validate: must have exactly 10 values, all between 0-10
     if (values.length !== 10) {
       console.log("Invalid code length:", values.length);
       return null;
@@ -204,9 +204,9 @@ function copyP2Code() {
   }
 }
 
-// Load Partner Code - FIXED
+// Load Partner Code
 function loadPartnerCode() {
-  const code = document.getElementById("partner-code-input").value.trim().toUpperCase();
+  const code = document.getElementById("partner-code-input").value.trim();
   const statusEl = document.getElementById("code-status");
   
   if (!code) {
@@ -222,13 +222,11 @@ function loadPartnerCode() {
     statusEl.textContent = "✓ Partner data loaded successfully!";
     statusEl.style.color = "#2ecc71";
     
-    // Show sliders if hidden
     const slidersContainer = document.getElementById("slidersContainer");
     if (slidersContainer.style.display === "none") {
       toggleSliders();
     }
     
-    // Clear input after successful load
     document.getElementById("partner-code-input").value = "";
   } else {
     statusEl.textContent = "✗ Invalid code. Please verify and try again.";
@@ -260,6 +258,50 @@ function showToast(message) {
     toast.style.animation = "slideDown 0.3s ease-out";
     setTimeout(() => toast.remove(), 300);
   }, 2000);
+}
+
+// ==================== PRINT FUNCTIONALITY ====================
+
+function printReport() {
+  window.print();
+}
+
+function addPrintMetadata() {
+  const today = new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  return `
+    <div class="print-header">
+      <h1 style="margin:0;">LoveSync Assessment Report</h1>
+      <p style="margin:0.5rem 0 0; font-size:0.9rem; color:#666;">Generated ${today}</p>
+    </div>
+  `;
+}
+
+function addPrintFooter() {
+  return `
+    <div class="print-metadata">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div>
+          <strong>Session Date:</strong> _______________________
+        </div>
+        <div>
+          <strong>Therapist:</strong> _______________________
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <strong>Session Notes:</strong>
+        <div style="border:1px solid #ccc; min-height:60px; margin-top:0.5rem; padding:0.5rem;"></div>
+      </div>
+      <div style="margin-top:1rem; font-size:0.8rem; color:#999;">
+        <p>This report was generated using LoveSync, a love language assessment tool. 
+        For best results, discuss findings with a qualified therapist or counselor.</p>
+      </div>
+    </div>
+  `;
 }
 
 // ==================== CORE FUNCTIONS ====================
@@ -506,14 +548,17 @@ function showSoloReport() {
   const cardsGive = labels.map((l, i) => generateSingleLanguageCard(data, false, i, "solo")).join("");
 
   const html = `
+    ${addPrintMetadata()}
+    <div class="print-controls">
+      <button class="btn-print" onclick="printReport()">🖨️ Print Report</button>
+      <button class="btn" onclick="closeReport()">Close Report</button>
+    </div>
     <h2 style="text-align:center;">Your Love Profile Report</h2>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
       <div><h3>Receiving</h3>${cardsReceive}</div>
       <div><h3>Giving</h3>${cardsGive}</div>
     </div>
-    <div style="text-align:center; margin-top:1.5rem;">
-      <button class="btn" onclick="closeReport()">Close Report</button>
-    </div>
+    ${addPrintFooter()}
   `;
 
   const rep = document.getElementById("report");
@@ -528,17 +573,22 @@ function showCoupleReport() {
   const p2 = getData("p2");
 
   const html = `
+    ${addPrintMetadata()}
+    <div class="print-controls">
+      <button class="btn-print" onclick="printReport()">🖨️ Print Report</button>
+      <button class="btn" onclick="closeReport()">Close Report</button>
+    </div>
     <h2 style="text-align:center;">Couple Love Language Report</h2>
     ${buildPraiseSection(p1, p2)}
     
     <div class="charts-grid">
       <div class="chart-container">
         <h3>Receiving Comparison</h3>
-        <canvas id="compare-chart-receive"></canvas>
+        nvas id="compare-chart-rt-receive"></canvas>
       </div>
       <div class="chart-container">
         <h3>Giving Comparison</h3>
-        <canvas id="compare-chart-give"></canvas>
+        nvas id="compare-re-chart-give"></canvas>
       </div>
     </div>
     
@@ -552,9 +602,7 @@ function showCoupleReport() {
       <h3>Giving</h3>
       <div class="paired-columns">${generatePairedLanguageRows(p1, p2, false)}</div>
     </div>
-    <div style="text-align:center; margin-top: 1.5rem;">
-      <button class="btn" onclick="closeReport()">Close Report</button>
-    </div>
+    ${addPrintFooter()}
   `;
 
   const rep = document.getElementById("report");
@@ -638,7 +686,6 @@ function setMode(mode) {
   let soloData = null;
   const currentMode = document.getElementById("solo-container").style.display !== "none" ? "solo" : "couple";
   
-  // If switching FROM solo TO couple, save solo data
   if (currentMode === "solo" && mode === "couple") {
     try {
       soloData = getData("solo");
@@ -648,7 +695,6 @@ function setMode(mode) {
     }
   }
   
-  // Update UI
   document.querySelectorAll(".mode-btn").forEach((b) => {
     b.classList.remove("active");
     b.setAttribute("aria-selected", "false");
@@ -670,7 +716,6 @@ function setMode(mode) {
       soloChart = createChart("solo-chart", data.rec, data.give);
     }
   } else if (mode === "couple") {
-    // Apply preserved solo data to Person 1
     if (soloData) {
       applyDataToSliders("p1", soloData);
       showToast("✓ Your data transferred to Person 1");
