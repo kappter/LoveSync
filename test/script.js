@@ -81,20 +81,16 @@ const praiseAffirmations = [
 
 let soloChart, chart1, chart2;
 
-// ==================== SHARE CODE FUNCTIONS ====================
-// ==================== FIXED SHARE CODE FUNCTIONS ====================
-
 function generateShareCode(data) {
   const values = [...data.rec, ...data.give];
-  // Simple base64 encode without character replacement
+  // Encode the full string - don't truncate!
   const encoded = btoa(values.join(','));
-  // Return first 16 chars for better uniqueness
-  return encoded.substring(0, 16).toUpperCase();
+  return encoded; // Return complete base64 string
 }
 
 function parseShareCode(code) {
   try {
-    // Try to decode directly
+    // Decode the complete base64 string
     const decoded = atob(code);
     const values = decoded.split(',').map(Number);
     
