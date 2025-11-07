@@ -82,22 +82,30 @@ const praiseAffirmations = [
 let soloChart, chart1, chart2;
 
 // ==================== SHARE CODE FUNCTIONS ====================
+// ==================== FIXED SHARE CODE FUNCTIONS ====================
 
 function generateShareCode(data) {
   const values = [...data.rec, ...data.give];
+  // Simple base64 encode without character replacement
   const encoded = btoa(values.join(','));
-  return encoded.substring(0, 12).toUpperCase().replace(/[+/=]/g, (c) => {
-    return c === '+' ? 'X' : c === '/' ? 'Y' : 'Z';
-  });
+  // Return first 16 chars for better uniqueness
+  return encoded.substring(0, 16).toUpperCase();
 }
 
 function parseShareCode(code) {
   try {
-    const normalized = code.replace(/X/g, '+').replace(/Y/g, '/').replace(/Z/g, '=');
-    const decoded = atob(normalized);
+    // Try to decode directly
+    const decoded = atob(code);
     const values = decoded.split(',').map(Number);
     
-    if (values.length !== 10 || values.some(v => isNaN(v) || v < 0 || v > 10)) {
+    // Validate: must have exactly 10 values, all between 0-10
+    if (values.length !== 10) {
+      console.log("Invalid code length:", values.length);
+      return null;
+    }
+    
+    if (values.some(v => isNaN(v) || v < 0 || v > 10)) {
+      console.log("Invalid values:", values);
       return null;
     }
     
@@ -106,6 +114,7 @@ function parseShareCode(code) {
       give: values.slice(5, 10)
     };
   } catch(e) {
+    console.error("Decode error:", e);
     return null;
   }
 }
@@ -135,7 +144,7 @@ function generateSoloShareCode() {
 function copySoloCode() {
   const codeInput = document.getElementById("solo-share-code");
   codeInput.select();
-  codeInput.setSelectionRange(0, 99999); // For mobile
+  codeInput.setSelectionRange(0, 99999);
   
   try {
     document.execCommand("copy");
@@ -143,6 +152,8 @@ function copySoloCode() {
   } catch(e) {
     navigator.clipboard.writeText(codeInput.value).then(() => {
       showToast("✓ Code copied!");
+    }).catch(() => {
+      showToast("⚠ Copy manually");
     });
   }
 }
@@ -166,6 +177,8 @@ function copyP1Code() {
   } catch(e) {
     navigator.clipboard.writeText(codeInput.value).then(() => {
       showToast("✓ Person 1 code copied!");
+    }).catch(() => {
+      showToast("⚠ Copy manually");
     });
   }
 }
@@ -189,11 +202,13 @@ function copyP2Code() {
   } catch(e) {
     navigator.clipboard.writeText(codeInput.value).then(() => {
       showToast("✓ Person 2 code copied!");
+    }).catch(() => {
+      showToast("⚠ Copy manually");
     });
   }
 }
 
-// Load Partner Code
+// Load Partner Code - FIXED
 function loadPartnerCode() {
   const code = document.getElementById("partner-code-input").value.trim().toUpperCase();
   const statusEl = document.getElementById("code-status");
@@ -216,8 +231,11 @@ function loadPartnerCode() {
     if (slidersContainer.style.display === "none") {
       toggleSliders();
     }
+    
+    // Clear input after successful load
+    document.getElementById("partner-code-input").value = "";
   } else {
-    statusEl.textContent = "✗ Invalid code. Please check and try again.";
+    statusEl.textContent = "✗ Invalid code. Please verify and try again.";
     statusEl.style.color = "#e74c3c";
   }
 }
@@ -620,6 +638,21 @@ function closeReport() {
 }
 
 function setMode(mode) {
+  // PRESERVE SOLO DATA when switching to couple mode
+  let soloData = null;
+  const currentMode = document.getElementById("solo-container").style.display !== "none" ? "solo" : "couple";
+  
+  // If switching FROM solo TO couple, save solo data
+  if (currentMode === "solo" && mode === "couple") {
+    try {
+      soloData = getData("solo");
+      console.log("Preserving solo data:", soloData);
+    } catch(e) {
+      console.log("No solo data to preserve");
+    }
+  }
+  
+  // Update UI
   document.querySelectorAll(".mode-btn").forEach((b) => {
     b.classList.remove("active");
     b.setAttribute("aria-selected", "false");
@@ -635,14 +668,24 @@ function setMode(mode) {
   document.getElementById("couple-container").style.display = mode === "couple" ? "block" : "none";
   document.getElementById("page-title").textContent = `LoveSync ${mode === "solo" ? "Solo" : "Couple"} Mode`;
 
-  if (mode === "solo" && !soloChart) {
-    const data = getData("solo");
-    soloChart = createChart("solo-chart", data.rec, data.give);
+  if (mode === "solo") {
+    if (!soloChart) {
+      const data = getData("solo");
+      soloChart = createChart("solo-chart", data.rec, data.give);
+    }
   } else if (mode === "couple") {
+    // Apply preserved solo data to Person 1
+    if (soloData) {
+      applyDataToSliders("p1", soloData);
+      showToast("✓ Your data transferred to Person 1");
+    }
+    
     const p1 = getData("p1");
     const p2 = getData("p2");
+    
     if (chart1) chart1.destroy();
     if (chart2) chart2.destroy();
+    
     chart1 = createChart("chart1", p1.rec, p1.give);
     chart2 = createChart("chart2", p2.rec, p2.give);
   }
