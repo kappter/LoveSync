@@ -562,6 +562,10 @@ function showSoloReport() {
   `;
 
   const rep = document.getElementById("report");
+  
+  // Then, after these canvases are in the DOM:
+  const ctxReceive = document.getElementById("compare-chart-receive").getContext("2d");
+  const ctxGive = document.getElementById("compare-chart-give").getContext("2d");
   rep.innerHTML = html;
   rep.style.display = "block";
   rep.focus();
